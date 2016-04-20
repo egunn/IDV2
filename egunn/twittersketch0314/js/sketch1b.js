@@ -11,6 +11,11 @@ var width2 = document.getElementById('timeline1').clientWidth - margin.r - margi
     height2 = document.getElementById('timeline1').clientHeight - margin.t - margin.b;
 
 
+var multiGravityOn = false;
+var circleSize = 4;
+var singleUser = false;
+
+
 //select the HTML plot element by class
 var userCanvas1 = d3.select("#user1");
 
@@ -40,6 +45,12 @@ var timelineCanvas3 = d3.select("#timeline3");
 //select the HTML plot element by class
 var plotCanvas3 = d3.select("#plot3");
 
+//create force layout, give charge and gravity
+var force = d3.layout.force()
+    .size([width1,height1])
+    .charge(0)
+    .gravity(0.001);
+
 
 userPlot1 = userCanvas1.append('svg')
     .attr('width',userWidth+margin.r+margin.l)
@@ -62,6 +73,7 @@ plot1 = plotCanvas1.append('svg')
     .append('g')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
+
 
 
 
@@ -151,7 +163,7 @@ function drawUsers(data) {
        .attr('y',5)
        .attr('width', 90)
        .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/2992761845/bc2f1ddf99da4c777b98768be883078e_normal.jpeg");
+       .attr("xlink:href",twitterData[0].user.profile_image_url);
     
     userData1.append('text')
         .style('text-anchor','middle')
@@ -159,15 +171,18 @@ function drawUsers(data) {
         .attr('y',115)
         .style('font-size',14)
         .style('fill','gray')
-        .text('Michael Pollan');
+        .text(data[0].user.name);
     
-    plot1.append("svg:image")
+   /* plot1.append("svg:image")
        .attr('x',userWidth/2-photoWidth/2+15)
        .attr('y',-20)
        .attr('width',130)
        .attr('height', 130)
-       .attr("xlink:href","../PollanScreenshot.png");
+       .attr("xlink:href","../PollanScreenshot.png");*/
     
+    bubbles(twitterData,plot1);
+    bubbles(twitterData,plot2);
+    bubbles(twitterData,plot3);
     
     
     for(var i=0; i<4; i++){
@@ -216,7 +231,7 @@ function drawUsers(data) {
        .attr('y',5)
        .attr('width', 90)
        .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/458793804904947712/kK2hkAOC_normal.jpeg");
+       .attr("xlink:href",twitterData[0].user.profile_image_url);
     
     userData2.append('text')
         .style('text-anchor','middle')
@@ -224,15 +239,15 @@ function drawUsers(data) {
         .attr('y',115)
         .style('font-size',14)
         .style('fill','gray')
-        .text('Alberto Cairo');
+        .text(data[0].user.name);
     
-        
+    /*    
     plot2.append("svg:image")
        .attr('x',userWidth/2-photoWidth/2+15)
        .attr('y',-20)
        .attr('width',130)
        .attr('height', 130)
-       .attr("xlink:href","../CairoScreenshot.png");
+       .attr("xlink:href","../CairoScreenshot.png");*/
     
     
         
@@ -281,7 +296,8 @@ function drawUsers(data) {
        .attr('y',5)
        .attr('width', 90)
        .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/67490765/bloghead_normal.jpg");
+       .attr("xlink:href",twitterData[0].user.profile_image_url);
+    
     
     userData3.append('text')
         .style('text-anchor','middle')
@@ -289,15 +305,15 @@ function drawUsers(data) {
         .attr('y',115)
         .style('font-size',14)
         .style('fill','gray')
-        .text('Seth Godin');
+        .text(data[0].user.name);
     
-        
+    /*    
     plot3.append("svg:image")
        .attr('x',userWidth/2-photoWidth/2+15)
        .attr('y',-20)
        .attr('width',130)
        .attr('height', 130)
-       .attr("xlink:href","../GodinScreenshot.png");
+       .attr("xlink:href","../GodinScreenshot.png");*/
 
     
      for(var i=0; i<4; i++){

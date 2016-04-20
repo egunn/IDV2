@@ -1,5 +1,4 @@
 //Next steps:
-//Attach to live twitterstream data, update nodes accordingly.
 //Click on a tweet to view activity over time. (Check to see if possible, without locating retweets //themselves).
 //Expand to follow multiple levels of retweeting
 
@@ -32,6 +31,8 @@ var width2 = document.getElementById('plot2').clientWidth - margin.r - margin.l,
 var radiusScale = d3.scale.sqrt().domain([0,20000]).range([10,50]);
 
 var multiGravityOn = false;
+var circleSize = 8;
+var singleUser = true;
 
 
 //select the HTML plot element by class
@@ -289,12 +290,13 @@ function drawUsers(data) {
         .on('click', multUsers);
     
     var inputName = undefined;
+    console.log(userWidth);
 
     //add a text input box, and save the input as a variable
     sidebarData.append("foreignObject")
         //.attr("width", '100px')
         //.attr("height", 40)
-        .attr('transform','translate(-54,65)')
+        .attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
         .append("xhtml:body") 
         .attr('class','input-box')
         .html("<form><input type=text id=\"check\" placeholder=\"  Enter a new user\" /></form>")
@@ -311,6 +313,26 @@ function drawUsers(data) {
             //do something
     });
     
+
+    
+    
+    sidebarData.append("foreignObject")
+        //.attr("width", '100px')
+        .attr("height", 150)
+        //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
+        .append("xhtml:body") 
+        //.attr('class','input-box')
+        .html("<button id=\"popupButton\" onclick=\"div_show()\">Compare Users</button>")
+        .attr('style','width:50px')
+        .on("click", function() {
+            console.log('div_show');
+            //popupPressed();
+            document.getElementById('popupWindowDiv').style.display = "block";
+        });
+        //.on("submit", function(){inputName = document.getElementById("popUser1").value;
+        //    console.log(inputName);
+        //});
+        
     
 
 
@@ -344,183 +366,7 @@ function drawUsers(data) {
 
     var circleSize = 8;
     
-    var circles = plot1.selectAll('.circ')
-        .data(twitterData)
-        .enter()
-        .append('g')
-        .attr('class',"circ-group")
-        .attr('transform', function (d) { 
-                
-            xPos = Math.random()*width1;
-            if(xPos>width1-circleSize){
-                xPos -= circleSize;
-            } 
-            else if(xPos< -xPos>width1-circleSize) {
-                xPos += xPos>width1-circleSize;
-            }
-
-            //write xPos to the bound object for later use
-            d.x=xPos;
-            d.xPos = xPos;
-     
-            yPos = Math.random()*height1
-            if(yPos>height1-circleSize){
-                yPos -= circleSize;
-            } 
-            else if(yPos< circleSize) {
-                yPos += circleSize;
-            }
-
-            //write xPos to the bound object for later use
-            d.y=yPos;
-            d.yPos = yPos;
-            
-            return  'translate('+ xPos + ',' + yPos + ')'; 
-        });
-    
-    circles
-        .append('circle')
-        .attr('class','circ')
-        .attr('cx',0)
-        .attr('cy',0)
-        .attr('r', function(d){
-            //turn off scaling of radii for now - working on single user timeline
-            //d.r = radiusScale(d.user.followers_count);
-            //return radiusScale(d.user.followers_count)})
-            d.r = circleSize;
-            return circleSize})
-        .style('fill', function(d){
-            //use substring(0,x) to get first few letters of each tweet.
-            //should be RT for retweet
-            if (d.text.substring(0,2)== "RT"){
-                var color = 'rgba(102, 0, 102,' 
-                var alpha = .5;
-                d.alpha = alpha;
-                d.color = color;
-                return color + alpha+')';
-            }
-            //should be @username for a reply or direct message
-            else if (d.text.substring(0,1) == "@"){
-                var color = 'rgba(0, 179, 179,'
-                var alpha = .5;
-                d.alpha = alpha;
-                d.color = color;
-                return color + alpha+')';
-            }
-            //should be nothing for fresh tweet
-            else {
-                var color = 'rgba(255, 140, 26,'
-                var alpha = .5;
-                d.alpha = alpha;
-                d.color = color;
-                return color + alpha+')';
-            }
-
-        })
-        .attr('id',function(d,i){
-            return String('circle-' + i)})
-        .call(force.drag)
-        //tooltip based on http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
-        .on("mouseover", mouseHighlightTweet)					
-        .on("mouseout", noMouseHighlightTweet)
-        .on('click', tweetClick);
-
-
-    //Collision detection
-    //array into force layout, updates start to happen, updated accordingly
-    //link nodes var to twitter data array
-    force.nodes(twitterData)
-        .on('tick',tick)
-        .start();
-    
-    
-    var satNodes = [];
-    
-    //append a group to the circles selection to hold satellites
-    //var satGroup = circles.append('g').attr('class','sat-group');
-    
-
-    //based on http://jsfiddle.net/nrabinowitz/5CfGG/
-    //and http://bl.ocks.org/milroc/4254604
-    circles.each(function(d,index){
-         
-            //select the current circle in the .each loop, append a group to it.
-            var satGroup = d3.select(this).append('g').attr('class','sat-group');
-        
-            //create a blanks to fill
-            satellites = [];
-            dataTree={};
-            
-            for (var i = 0; i<d.retweet_count; i++){
-                //console.log(d.retweet_count);
-                satellite = {parentX:d.x, parentY:d.y, retweets:d.retweet_count, parentR:d.r}
-                satellites.push(satellite);
-            }
-        
-            if(satellites.length > 0){ 
-            
-                var dataTree = {
-                     //take the satellites array, and map each entry onto a function that returns
-                     //the length of the array, so that each satellite child object knows how many
-                     //siblings it has.
-                     children: []
-            };    
-                
-            for (var j=0; j<satellites.length;j++){
-                //map satellite data to a tree
-                dataTree.children.push({size: satellites.length})
-
-            }
-                
-            //object with the children array inside it. Children array is an array of child objects, 
-            //each with a size attribute.
-            //console.log(dataTree);
-                             
-            }
-         
-            tree = null;
-        
-            //if there is a dataTree for a circle, make a treemap layout 
-            if(dataTree != {}){
-                // make a radial tree layout
-                tree = d3.layout.tree()
-                    //x controls length (360 for radial degrees. y controls radial distance. 
-                    //Node size is set when circles are drawn, below.
-                    .size([360*4,circleSize]); //why won't this work with an anonymous function? returns NaN...
-                    //.separation(function(a,b) {
-                        //set ideal separation between satellites (doesn't do much, but have to have it,
-                        //or node x,y position calculation returns NaN)
-                    //    return 2;//radiusScale(a.size) + radiusScale(b.size);
-                    //});
-                
-                
-                //apply the layout to the data
-                satNodes = tree.nodes(dataTree);
-
-            }
-            
-      
-                // create empty selectio to append satellites into
-                var satNode = satGroup.selectAll(".node");
-        
-                var nodes = satNode.data(satNodes.slice(1)) // cut out the root node, we don't need it
-                      .enter()
-                      .append("g")
-                      .attr("class", "node")
-                      .attr("transform", function(d,i) {                    
-                          //draw the satellite nodes around the center and translate to the 
-                          //appropriate radial distance.
-                          return "rotate(" + (d.x) + ") translate(" + (10 + (i*.05)) + ")";
-                      });
-                      
-
-                nodes.append("circle")
-                    .attr("r", 1)
-                    .style("fill",'rgba(95, 95, 95, .7)'); 
-
-
-                
-    }) //close .each        
+    bubbles(twitterData,plot1);  
     
     
     
@@ -627,278 +473,54 @@ function drawUsers(data) {
         .on("mouseover", mouseHighlightTimeline)				
         .on("mouseout", noMouseHighlightTimeline)
         .on('click',timelineClick);
-  
-}
-
-
-    function multUsers(){
-        window.location = "../sketch1b.html";
-    }
-
-
-function timelineClick(d) {
-
-    var xShift = d.x+20;
-    var yShift = d.y+20;
+ 
+    canvas1.append("foreignObject")
+        //.attr("width", '100px')
+        //.attr("height", 40)
+        //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
+        .append("xhtml:body") 
+        .attr('class', 'popup-form')
+        .html("<div id=\"popupWindowDiv\"> <div id=\"popupWindow\"> <form action=\"#\" id=\"form\"  name=\"form\">                <h3>Enter 3 users to compare</h3>  <input id=\"popupUser1\" name=\"name\" placeholder=\"Name\" type=\"text\">     <input id=\"popupUser2\" name=\"name\" placeholder=\"Name\" type=\"text\">         <input id=\"popupUser3\" name=\"name\" placeholder=\"Name\" type=\"text\">       <input id=\"contactSend\" class=\"submit\" type=\"submit\" />  </form>     </div>      </div>");     
+              
+              //<a href=\"javascript:%20check_empty()\" id=\"submitForm\">Send</a>    </form>     </div>      </div>");
     
-    div1.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-
-    div1.html(d.text +  "<br/>"  + "<b>" + "Retweets: " + d.retweet_count +"</b>")	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
-}
-
-function tweetClick(d) {
-
-    var xShift = d.xcoord+40;
-    var yShift = 25+(d.yaxis-1)*25;
-    div2.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-    	
-    div2.html(d.shortDate + "<br/>" + d.time)	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
-}
-
-function mouseHighlightTweet(d){
+  /*  formSubmit = d3.selectAll("#submitForm")    
+        .on("submit", function(){
+            inputName = document.getElementById("popUser1").value;
+            console.log(inputName);
+        });*/
     
-    var xShift = d.x+20;
-    var yShift = d.y+20;
     
-    div1.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-
-    div1.html(d.text +  "<br/>"  + "<b>" + "Retweets: " + d.retweet_count +"</b>")	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
-
-
-    var highlightedTweet = d3.select(this);
-    
-    highlightedTweet.style('fill', function(d){
-       return d.color + '1)'})
-    
-    tweetId = highlightedTweet.attr('id');
-    idConcat =  '#' + tweetId ;
-    
-    var circle = plot2.select(idConcat);
-    
-    circle.style('fill', function(d){
-        return d.color + '1)'})
-        .transition(100)
-        .attr('r',20)
-        .transition(100)
-        .attr('r',10);
-
-}
-
-function noMouseHighlightTweet(d){
-    div1.transition()		
-        .duration(500)		
-        .style("opacity", 0);
-    
-    div2.transition()		
-        .duration(500)		
-        .style("opacity", 0);	
-    
-    var highlightedTweet = d3.select(this);
-    
-    highlightedTweet.style('fill', function(d){return d.color + d.alpha + ')'})
-    
-    tweetId = highlightedTweet.attr('id');
-    idConcat =  '#' + tweetId ;
-    
-    var circle = plot2.select(idConcat);
-    
-    circle
-        .transition(5000)
-        .delay(500)
-        .style('fill', function(d){return d.color + d.alpha+ ')'})
-        .attr('r',5);
+    $('#form').submit(function () {
+        //call function to hide the popup
+        div_hide();
         
-    
-	
-    
-
-}
-
-
-
-
-
-
-function mouseHighlightTimeline(d){
-    //console.log(d);
-    var xShift = d.xcoord+40;
-    var yShift = 25+(d.yaxis-1)*25;
-    var circleSize = 8;
-        
-    div2.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-    	
-    div2.html(d.shortDate + "<br/>" + d.time)	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
-        	
-    
-    var highlightedTime = d3.select(this);
-    
-    highlightedTime.style('fill', function(d){
-       return d.color + '1)'})
-    
-    timelineId = highlightedTime.attr('id');
-    idConcat =  '#' + timelineId ;
-    
-    var circle = d3.select(idConcat);
-    
-    circle.style('fill', function(d){
-        return d.color + '1)'})
-        .transition(100)
-        .attr('r',15)
-        .transition(100)
-        .attr('r',circleSize);
-
-}
-
-function noMouseHighlightTimeline(d){
-    div2.transition()		
-        .duration(500)		
-        .style("opacity", 0);	
-    
-    var highlightedTime = d3.select(this);
-    
-    highlightedTime.style('fill', function(d){return d.color + d.alpha + ')'})
-    
-    timelineId = highlightedTime.attr('id');
-    idConcat =  '#' + timelineId ;
-    
-    var circle = d3.select(idConcat);
-    
-    circle
-        .transition(5000)
-        .delay(500)
-        .style('fill', function(d){return d.color + d.alpha+ ')'});
-
-}
-
-function reloadData(inputName){
-    console.log('reloadData ' + inputName);
-    if (inputName[0] == '@'){
-        console.log('@ included');
-    }
-    //add an @ symbol, if the user didn't
-    else {
-        inputName = '@' + inputName;
-        console.log(inputName);
-    }
-    
-    plot1.selectAll("*").remove();
-    plot2.selectAll("*").remove();
-    sidebarPlot.selectAll("*").remove();
-    userPlot.selectAll("*").remove();
-    tweetInterval = 0;
-    
-    //load this link to call data live from Twitter
-    //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
-    d3.json('http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + inputName + '&count=100', function(error, data){
-        parse(data);
+        //prevent screen from refreshing by returning false
+        return false;
     });
-}
-
-function tick(e){
-      //implement custom tick function.
-
-        circleGroups = d3.selectAll('.circ-group');
-       
-        circles = plot1.selectAll('.circ');
-        circles.each(collide(.25));
     
-        if (!multiGravityOn){
-            circles.each(gravity(.01));//gravity(.01);
-        }
-    
-        else if (multiGravityOn){
-            circles.each(multiGravity(.01));//gravity(.01);
-        }
-
-    
-        circleGroups.each(function(d,i){
-            d3.select(this).attr('transform', 'translate(' + d.x + ',' + d.y + ')');
-        })
+    //make an array to store names
+    userInput = [null,null,null];
         
-        function gravity(k){  
-            //console.log('singlesgrvity');
-
-            //custom gravity: data points gravitate towards a straight line
-            return function(d){
-                d.y += (height1/2 - d.y)*k;
-                d.x += (d.xPos*.5 + width1/4 - d.x)*k;//(d.xPos - d.x)*k;
-            }
-        }
-            
-        function multiGravity(k){
-            //console.log('multigrvity');
-            //custom gravity: data points gravitate towards a straight line
-            return function(d){
-                var focus = {};
-                
-                if (d.text.substring(0,2)== "RT"){
-                    focus.x = width1/3 - width1/6;
-                }
-                //should be @username for a reply or direct message
-                else if (d.text.substring(0,1) == "@"){
-                    focus.x = width1/2;
-                }
-                //should be nothing for fresh tweet
-                else {
-                    focus.x = (2*width1)/3+width1/6;
-                }
-
-                //focus.x = (d.xPos < width/2)?(width/3-100):(width*2/3+100);
-                focus.y = height1/2;
-
-                d.y += (focus.y - d.y)*k;
-                d.x += (focus.x - d.x)*k;
-            }
-        }
-
+    inputName1 = d3.select('#popupUser1').on('input', function(){
+        userInput[0] = this.value;
+    })
+    
+    inputName2 = d3.select('#popupUser2').on('input', function(){
+        userInput[1] = this.value;
+    })
         
+    inputName3 = d3.select('#popupUser3').on('input', function(){
+        userInput[2] = this.value;
+    })
 }
 
-//from http://bl.ocks.org/mbostock/1804919
-function collide(alpha){
-    var quadtree = d3.geom.quadtree(twitterData);
-  return function(d) {
-    var r = d.r + 15,
-        nx1 = d.x - r,
-        nx2 = d.x + r,
-        ny1 = d.y - r,
-        ny2 = d.y + r;
-      
-    quadtree.visit(function(quad, x1, y1, x2, y2) {
-      if (quad.point && (quad.point !== d)) {
-        var x = d.x - quad.point.x,
-            y = d.y - quad.point.y,
-            l = Math.sqrt(x * x + y * y),
-            r = d.r + quad.point.r + 20;
-        if (l < r) {
-          l = (l - r) / l * alpha;
-          d.x -= x *= (l*.3);
-          d.y -= y *= (l*.3);
-          quad.point.x += x;
-          quad.point.y += y;
-        }
-      }
-      return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-    });
-  };
-          
+//load sketch page
+function multUsers(){
+    window.location = "../sketch1b.html";
 }
+
+
 
 function mouseClickCategories() {
     if (multiGravityOn == true){
@@ -989,3 +611,5 @@ function mouseClickCategories() {
         .start();
 
 }
+
+
