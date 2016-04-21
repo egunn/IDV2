@@ -10,7 +10,7 @@ function drawWindow(data,data2,data3) {
         twitterData3 = data3;
     }
     
-    console.log(singleUser);
+    //console.log(singleUser);
     
     if (singleUser){
         
@@ -300,15 +300,6 @@ function drawSidebarCanvas(twitterData, currentCanvas){
             });*/
 
 
-        $('#form-popup').submit(function () {
-            //call function to hide the popup
-            div_hide();
-            multUsers()
-            
-            //prevent screen from refreshing by returning false
-            return false;
-        });
-
         //make an array to store names
         userInput = [null,null,null];
 
@@ -323,6 +314,17 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         var inputName3 = d3.select('#popupUser3').on('input', function(){
             userInput[2] = this.value;
         })
+        
+        $('#form-popup').submit(function () {
+            //call function to hide the popup
+            div_hide();
+            multUsers(userInput);
+            
+            //prevent screen from refreshing by returning false
+            return false;
+        });
+
+       
     
         
 }

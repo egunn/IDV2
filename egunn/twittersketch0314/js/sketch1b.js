@@ -125,24 +125,63 @@ plot3 = plotCanvas3.append('svg')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
-queue()
-    .defer(d3.json, "./SethGodin_0320_100timeline.json")
-    .defer(d3.json, "./AlbertoCairo_0320_100timeline.json")
-    .defer(d3.json, "./AmandaPalmer_0320_100timeline.json")
-    .await(function(err,data1, data2,data3) {
-        if (err){
-            console.log('error in queue');
-        }
-        
-        var twitterData = parse(data1);
-        var twitterData2 = parse(data2);
-        var twitterData3 = parse(data3);
-        
-        //console.log("await");
-        //call the draw function, pass it the loaded data
-        drawWindow(twitterData, twitterData2,twitterData3);
+var userInput = null;
+//var userInput = ['@jonathanfields', '@engunneer', '@michaelpollan'];
 
-    });
+//if the user has entered data, use it to query the Twitter API
+if(userInput){
+    /*
+    if (inputName[0] == '@'){
+                //console.log('@ included');
+    }
+    //add an @ symbol, if the user didn't
+    else {
+        inputName = '@' + inputName;
+        //console.log(inputName);
+    }*/
+    
+    var toLookup = userInput[0];
+    var toLookup2 = userInput[1];
+    var toLookup3 = userInput[2];
+    
+    queue()
+        .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup + '&count=100')
+        .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup2 + '&count=100')
+        .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup3 + '&count=100')
+        .await(function(err,data1, data2,data3) {
+            var twitterData = parse(data1);
+            var twitterData2 = parse(data2);
+            var twitterData3 = parse(data3);
+
+            //console.log("await");
+            //call the draw function, pass it the loaded data
+            drawWindow(twitterData, twitterData2,twitterData3);
+    })
+}
+
+//if the user hasn't identified users to compare (should be impossible)
+//in the final version), then load static data from folder.
+else {
+    queue()
+        .defer(d3.json, "./SethGodin_0320_100timeline.json")
+        .defer(d3.json, "./AlbertoCairo_0320_100timeline.json")
+        .defer(d3.json, "./AmandaPalmer_0320_100timeline.json")
+        .await(function(err,data1, data2,data3) {
+            if (err){
+                console.log('error in queue');
+            }
+
+            var twitterData = parse(data1);
+            var twitterData2 = parse(data2);
+            var twitterData3 = parse(data3);
+
+            //console.log("await");
+            //call the draw function, pass it the loaded data
+            drawWindow(twitterData, twitterData2,twitterData3);
+
+        });
+    
+}
 
 
 
@@ -154,7 +193,6 @@ queue()
 
 
 function parse(data){
-    console.log("parse")
     
     var parsedTweets = [];
     

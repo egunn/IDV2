@@ -98,7 +98,7 @@ plot2 = canvas2.append('svg')
 
 //load twitter data, then call draw function.
 //d3.json("./twitter_data2.json", function(error, data) {
-d3.json("./MichaelPollan_0320_100timeline.json", function(error, data) {
+d3.json("./AmandaPalmer_0320_100timeline.json", function(error, data) {
     
     //check that you can access data (this gives follower count for a specific user)
     //console.log(data.statuses[0].user.followers_count); 
@@ -176,7 +176,7 @@ function drawUsers(data) {
 }*/
 
 //load sketch page
-function multUsers(){
+function multUsers(userInput){
     window.location = "../sketch1b.html";
 }
 

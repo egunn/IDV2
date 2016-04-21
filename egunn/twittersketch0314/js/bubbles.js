@@ -98,6 +98,7 @@ function bubbles(twitterData, plotHandle){
     //append a group to the circles selection to hold satellites
     //var satGroup = circles.append('g').attr('class','sat-group');
     
+    var numSats = null;
 
     //based on http://jsfiddle.net/nrabinowitz/5CfGG/
     //and http://bl.ocks.org/milroc/4254604
@@ -112,6 +113,8 @@ function bubbles(twitterData, plotHandle){
             
             for (var i = 0; i<d.retweet_count; i++){
                 //console.log(d.retweet_count);
+                numSats = d.retweet_count;
+                
                 satellite = {parentX:d.x, parentY:d.y, retweets:d.retweet_count, parentR:d.r}
                 satellites.push(satellite);
             }
@@ -169,7 +172,17 @@ function bubbles(twitterData, plotHandle){
                       .attr("transform", function(d,i) {                    
                           //draw the satellite nodes around the center and translate to the 
                           //appropriate radial distance.
-                          return "rotate(" + (d.x) + ") translate(" + ((circleSize +circleSize/4) + (i*.05)) + ")";
+                          //console.log(numSats);
+                          
+                          if (numSats<200){
+                              return "rotate(" + (d.x) + ") translate(" + ((circleSize +circleSize/4) + (i*.05)) + ")";
+                          }
+                          else if (numSats<500){
+                              return "rotate(" + (d.x*10) + ") translate(" + ((circleSize +circleSize/4) + (i*.05)) + ")";
+                          }
+                          else {
+                              return "rotate(" + (d.x*15) + ") translate(" + ((circleSize +circleSize/4) + (i*.01)) + ")";
+                          }
                       });
                       
 

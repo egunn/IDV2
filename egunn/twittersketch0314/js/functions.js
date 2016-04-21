@@ -1,29 +1,33 @@
 
 function timelineClick(d) {
-
-    var xShift = d.x+20;
-    var yShift = d.y+20;
     
-    div1.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
+    if(singleUser){
+        var xShift = d.x+20;
+        var yShift = d.y+20;
 
-    div1.html(d.text +  "<br/>"  + "<b>" + "Retweets: " + d.retweet_count +"</b>")	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
+        div1.transition()		
+            .duration(200)		
+            .style("opacity", .8);		
+
+        div1.html(d.text +  "<br/>"  + "<b>" + "Retweets: " + d.retweet_count +"</b>")	
+            .style("left", xShift + "px")		
+            .style("top", yShift + "px");
+    }
 }
 
 function tweetClick(d) {
+    if (singleUser) {
 
-    var xShift = d.xcoord+40;
-    var yShift = 25+(d.yaxis-1)*25;
-    div2.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-    	
-    div2.html(d.shortDate + "<br/>" + d.time)	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
+        var xShift = d.xcoord+40;
+        var yShift = 25+(d.yaxis-1)*25;
+        div2.transition()		
+            .duration(200)		
+            .style("opacity", .8);		
+
+        div2.html(d.shortDate + "<br/>" + d.time)	
+            .style("left", xShift + "px")		
+            .style("top", yShift + "px");
+    }
 }
 
 function mouseHighlightTweet(d){
@@ -159,7 +163,7 @@ function noMouseHighlightTimeline(d){
 
 function reloadData(inputName){
     
-    console.log(singleUser);
+    //console.log(singleUser);
     console.log(inputName);
     
     if (singleUser) {
@@ -186,30 +190,30 @@ function reloadData(inputName){
                 });
     }
     
+    /*
     //doesn't like inputName[i].[0] - check back when inputName is an array of 3.
     else if (!singleUser) {
-        for (var i = 0; i < inputName.length; i++){
-            var str = inputName[i];
-            if (str[0] == '@'){
-                //console.log('@ included');
-            }
-            //add an @ symbol, if the user didn't
-            else {
-                toLookup = '@' + str;
-                //console.log(inputName);
-            }
-
-
-            tweetInterval = 0;
-
-            //load this link to call data live from Twitter
-            //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
-            d3.json('http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup + '&count=100', function(error, data){
-                parse(data);
-            });
+        if (str[0] == '@'){
+            //console.log('@ included');
         }
-        
+        //add an @ symbol, if the user didn't
+        else {
+            toLookup = '@' + str;
+            //console.log(inputName);
+        }
+
+
+        tweetInterval = 0;
+
+        //load this link to call data live from Twitter
+        //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
+        d3.json('http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup + '&count=100', function(error, data){
+            parse(data);
+        });
     }
+    */
+        
+    
     
 }
 
