@@ -152,6 +152,9 @@ function noMouseHighlightTimeline(d){
 
 function reloadData(inputName){
     
+    console.log(singleUser);
+    console.log(inputName);
+    
     if (singleUser) {
         //console.log('reloadData ' + inputName);
             if (inputName[0] == '@'){
@@ -288,7 +291,7 @@ function collide(alpha){
                 r = d.r + quad.point.r + (circleSize*2+4);
             }
             else {
-                r = d.r + quad.point.r + (circleSize*8);
+                r = d.r + quad.point.r + (circleSize*6);
             }
         if (l < r) {
           l = (l - r) / l * alpha;

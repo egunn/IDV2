@@ -1,0 +1,50 @@
+function reloadData(inputName){
+    
+    if (singleUser) {
+        //console.log('reloadData ' + inputName);
+            if (inputName[0] == '@'){
+                //console.log('@ included');
+            }
+                //add an @ symbol, if the user didn't
+                else {
+                    inputName = '@' + inputName;
+                    //console.log(inputName);
+                }
+
+                plot1.selectAll("*").remove();
+                plot2.selectAll("*").remove();
+                sidebarPlot.selectAll("*").remove();
+                userPlot.selectAll("*").remove();
+                tweetInterval = 0;
+
+                //load this link to call data live from Twitter
+                //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
+                d3.json('http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + inputName + '&count=100', function(error, data){
+                    parse(data);
+                });
+    }
+    
+    else if (!singleUser) {
+        for (var i = 0; i < inputName.length; i++){
+            if (inputName[i].[0] == '@'){
+                //console.log('@ included');
+            }
+                //add an @ symbol, if the user didn't
+                else {
+                    inputName = '@' + inputName[i];
+                    //console.log(inputName);
+                }
+
+
+                tweetInterval = 0;
+
+                //load this link to call data live from Twitter
+                //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
+                d3.json('http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + inputName[i] + '&count=100', function(error, data){
+                    parse(data);
+                });
+        }
+        
+    }
+    
+}

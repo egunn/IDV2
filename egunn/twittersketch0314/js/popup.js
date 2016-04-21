@@ -19,7 +19,6 @@ function check_empty() {
 //Function To Display Popup
 function div_show() {
     
-    
 }
 
 //Function to Hide Popup

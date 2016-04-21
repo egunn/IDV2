@@ -14,6 +14,8 @@ var width2 = document.getElementById('timeline1').clientWidth - margin.r - margi
 var multiGravityOn = false;
 var circleSize = 4;
 var singleUser = false;
+var twitterData = null;
+//var inputName = ['MichaelPollan', 'engunneer', 'thisissethsblog'];
 
 
 //select the HTML plot element by class
@@ -143,75 +145,16 @@ function drawUsers(data) {
     
     console.log(data);
     
-     //************************
-    //User 
-    //************************
+    drawUserCanvas(data);
     
-    userData1 = userPlot1.append('g').attr('class','user-data');
-    photoWidth = 100;
-    
-    userData1.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-photoWidth/2)
-        .attr('y',0)
-        .attr('width',photoWidth)
-        .attr('height',photoWidth)
-        .style('fill','lightgray');
-    
-    userData1.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+5)
-       .attr('y',5)
-       .attr('width', 90)
-       .attr('height', 90)
-       .attr("xlink:href",twitterData[0].user.profile_image_url);
-    
-    userData1.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',115)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text(data[0].user.name);
-    
-   /* plot1.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../PollanScreenshot.png");*/
+
     
     bubbles(twitterData,plot1);
     bubbles(twitterData,plot2);
     bubbles(twitterData,plot3);
     
     
-    for(var i=0; i<4; i++){
-        
-        timelinePlot1.append('line')
-            .attr('x1',55)
-            .attr('y1',15+i*25)
-            .attr('x2',width2-30)
-            .attr('y2',15+i*25)
-            .style('stroke','gray')
-            .style('stroke-width',0.2);
-        
-        timelinePlot1.append('text')
-            .style('text-anchor','left')
-            .attr('x',5)
-            .attr('y',15+i*25+3)
-            .style('font-size',10)  
-            .style('fill','gray')
-            .text('3/'+ (i +10)+ '/16');
-        
-        for (var j = 0; j < 10; j++){
-            timelinePlot1.append('circle')
-                .attr('cx', Math.random()*(width2-125)+60)
-                .attr('cy', 15+i*25)
-                .attr('r',4)
-                .style('fill','rgba(153, 185, 230,.5')
-        }
-        
-    }
+    drawTimeline(twitterData);
     
     
     
@@ -241,14 +184,7 @@ function drawUsers(data) {
         .style('fill','gray')
         .text(data[0].user.name);
     
-    /*    
-    plot2.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../CairoScreenshot.png");*/
-    
+
     
         
      for(var i=0; i<4; i++){
@@ -342,6 +278,9 @@ function drawUsers(data) {
                 .style('fill','rgba(153, 185, 230,.5')
         }
      }
+    
+    
+       
     
     
 }
