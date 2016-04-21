@@ -28,7 +28,7 @@ function tweetClick(d) {
 
 function mouseHighlightTweet(d){
     
-    var xShift = d.x+20;
+    var xShift = d.x+35;
     var yShift = d.y+20;
     
     div1.transition()		
@@ -49,7 +49,7 @@ function mouseHighlightTweet(d){
     idConcat =  '#' + tweetId ;
     
     var circle = plot2.select(idConcat);
-    
+
     circle.style('fill', function(d){
         return d.color + '1)'})
         .transition(100)
@@ -95,58 +95,65 @@ function noMouseHighlightTweet(d){
 
 
 function mouseHighlightTimeline(d){
-    //console.log(d);
-    var xShift = d.xcoord+40;
-    var yShift = 25+(d.yaxis-1)*25;
-    var circleSize = 8;
+    if(singleUser){
+        //console.log(d);
+        var xShift = d.xcoord+40;
+        var yShift = 25+(d.yaxis-1)*25;
+        var circleSize = 8;
+
+        div2.transition()		
+            .duration(200)		
+            .style("opacity", .8);		
+
+        div2.html(d.shortDate + "<br/>" + d.time)	
+            .style("left", xShift + "px")		
+            .style("top", yShift + "px");
+
+
+        var highlightedTime = d3.select(this);
+
+        //d3.select("circle:nth-child(3)").attr("fill","red");   
+        highlightedTime.style('fill', function(d){
+           return d.color + '1)'})
+
+        timelineId = highlightedTime.attr('id');
+        idConcat =  '#' + timelineId ;
+
+        //id given to the parent group that the circ + satellites are in - need to select circ inside it.
+        var circleGroup = d3.select(idConcat);
         
-    div2.transition()		
-        .duration(200)		
-        .style("opacity", .8);		
-    	
-    div2.html(d.shortDate + "<br/>" + d.time)	
-        .style("left", xShift + "px")		
-        .style("top", yShift + "px");
-        	
-    
-    var highlightedTime = d3.select(this);
-    
-    highlightedTime.style('fill', function(d){
-       return d.color + '1)'})
-    
-    timelineId = highlightedTime.attr('id');
-    idConcat =  '#' + timelineId ;
-    
-    var circle = d3.select(idConcat);
-    
-    circle.style('fill', function(d){
-        return d.color + '1)'})
-        .transition(100)
-        .attr('r',15)
-        .transition(100)
-        .attr('r',circleSize);
+        circleGroup.select('.circ').style('fill', function(d){
+        //circle.style('fill', function(d){
+            return d.color + '1)'})
+            .transition(100)
+            .attr('r',15)
+            .transition(100)
+            .attr('r',circleSize);
+    }
 
 }
 
 function noMouseHighlightTimeline(d){
-    div2.transition()		
-        .duration(500)		
-        .style("opacity", 0);	
-    
-    var highlightedTime = d3.select(this);
-    
-    highlightedTime.style('fill', function(d){return d.color + d.alpha + ')'})
-    
-    timelineId = highlightedTime.attr('id');
-    idConcat =  '#' + timelineId ;
-    
-    var circle = d3.select(idConcat);
-    
-    circle
-        .transition(5000)
-        .delay(500)
-        .style('fill', function(d){return d.color + d.alpha+ ')'});
+    if (singleUser){
+        div2.transition()		
+            .duration(500)		
+            .style("opacity", 0);	
 
+        var highlightedTime = d3.select(this);
+
+        highlightedTime.style('fill', function(d){return d.color + d.alpha + ')'})
+
+        timelineId = highlightedTime.attr('id');
+        idConcat =  '#' + timelineId ;
+
+        var circleGroup = d3.select(idConcat);
+        
+        circleGroup.select('.circ')
+            .transition(5000)
+            .delay(500)
+            .style('fill', function(d){return d.color + d.alpha+ ')'});
+
+    }
 }
 
 
@@ -206,14 +213,17 @@ function reloadData(inputName){
     
 }
 
-function tick(e){
-      //implement custom tick function.
 
+function tick(e,twitterData){
+      //implement custom tick function.
+    
+        var twitterData = twitterData;
+    
         circleGroups = d3.selectAll('.circ-group');
-       
+
         circles = plot1.selectAll('.circ');
         circles.each(collide(.15));
-    
+
         if (!multiGravityOn){
             if(singleUser){
                 circles.each(gravity(.01));//gravity(.01);
@@ -222,16 +232,16 @@ function tick(e){
                 circles.each(gravity(.15));//gravity(.01);
             }
         }
-    
+
         else if (multiGravityOn){
             circles.each(multiGravity(.01));//gravity(.01);
         }
 
-    
+
         circleGroups.each(function(d,i){
             d3.select(this).attr('transform', 'translate(' + d.x + ',' + d.y + ')');
         })
-        
+
         function gravity(k){  
             //console.log('singlesgrvity');
 
@@ -241,13 +251,13 @@ function tick(e){
                 d.x += (d.xPos*.5 + width1/4 - d.x)*k;//(d.xPos - d.x)*k;
             }
         }
-            
+
         function multiGravity(k){
             //console.log('multigrvity');
             //custom gravity: data points gravitate towards a straight line
             return function(d){
                 var focus = {};
-                
+
                 if (d.text.substring(0,2)== "RT"){
                     focus.x = width1/3 - width1/6;
                 }
@@ -268,12 +278,10 @@ function tick(e){
             }
         }
 
-        
-}
 
-//from http://bl.ocks.org/mbostock/1804919
+    //from http://bl.ocks.org/mbostock/1804919
 function collide(alpha){
-    
+
   var quadtree = d3.geom.quadtree(twitterData);
   return function(d) {
     var r = d.r + 15,
@@ -281,7 +289,7 @@ function collide(alpha){
         nx2 = d.x + r,
         ny1 = d.y - r,
         ny2 = d.y + r;
-      
+
     quadtree.visit(function(quad, x1, y1, x2, y2) {
       if (quad.point && (quad.point !== d)) {
         var x = d.x - quad.point.x,
@@ -304,5 +312,9 @@ function collide(alpha){
       return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
     });
   };
-          
+
 }
+    
+}
+
+

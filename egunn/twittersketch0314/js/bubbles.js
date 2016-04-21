@@ -5,10 +5,11 @@ function bubbles(twitterData, plotHandle){
         .enter()
         .append('g')
         .attr('class',"circ-group")
+        .attr('id',function(d,i){return String('circle-' + i)})
         .attr('transform', function (d) { 
                 
             xPos = Math.random()*width1;
-            if(xPos>width1-circleSize){
+            if(xPos>width1-circleSize){ 
                 xPos -= circleSize;
             } 
             else if(xPos< -xPos>width1-circleSize) {
@@ -73,8 +74,6 @@ function bubbles(twitterData, plotHandle){
             }
 
         })
-        .attr('id',function(d,i){
-            return String('circle-' + i)})
         .call(force.drag)
         //tooltip based on http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
     
@@ -90,7 +89,7 @@ function bubbles(twitterData, plotHandle){
     //array into force layout, updates start to happen, updated accordingly
     //link nodes var to twitter data array
     force.nodes(twitterData)
-        .on('tick',tick)
+        .on('tick',function(e){ tick(e,twitterData);})
         .start();
     
     
@@ -181,5 +180,7 @@ function bubbles(twitterData, plotHandle){
 
                 
     }) //close .each  
+    
+    
     
 }

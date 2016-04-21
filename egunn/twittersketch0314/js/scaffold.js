@@ -1,6 +1,15 @@
-function drawWindow(data) {
+function drawWindow(data,data2,data3) {
     
-    twitterData=data;
+    var twitterData=data;
+    var twitterData2 = false;
+    var twitterData3 = false;
+    if (data2){
+        twitterData2 = data2;
+    }
+    if (data3){
+        twitterData3 = data3;
+    }
+    
     console.log(singleUser);
     
     if (singleUser){
@@ -9,50 +18,53 @@ function drawWindow(data) {
         
             //get size and other info from CSS - set classes appropriately
             //photo, name
-            drawUserCanvas(data);
+            drawUserCanvas(data,userPlot);
         
             //input new user, compare users, and gravity buttons
-            drawSidebarCanvas(data);
+            drawSidebarCanvas(data,sidebarPlot);
             
             //bubbles
-            drawBubbles(data);
+            drawBubbles(data,plot1);
             
             //timeline
-            drawTimeline(data);
+            drawTimeline(data,plot2);
     }
     
-    /*
+    
     
     else {
         
-        //take each entry in the input name
-        for (var i =0; i<inputName.length; i++){
-            //get the appropriate data (either load from pre-queued dataset, or call here)
-            
-            //get size and other info from CSS - set classes appropriately
-            //photo, name
-            drawUserCanvas();
-            
-            //bubbles
-            drawCanvas1();
-            
-            //timeline
-            drawCanvas2();
+        //draw Users, force layouts, and timelines
+        drawUserCanvas(data, userPlot1);
+        bubbles(twitterData,plot1);
+        drawTimeline(twitterData,timelinePlot1);
+        
+        if (twitterData2){
+            drawUserCanvas(twitterData2, userPlot2);
+            bubbles(twitterData2,plot2);
+            drawTimeline(twitterData2,timelinePlot2);
+        }
+        if (twitterData3){
+            drawUserCanvas(twitterData3, userPlot3);
+            bubbles(twitterData3,plot3);
+            drawTimeline(twitterData3,timelinePlot3);
         }
         
         
-    }*/
+        
+        
+    }
     
 }
 
-function drawUserCanvas(twitterData){
+function drawUserCanvas(twitterData,currentCanvas){
 
     if (singleUser) {
         //************************
         //User 
         //************************
 
-        userData = userPlot.append('g').attr('class','user-data');
+        userData = currentCanvas.append('g').attr('class','user-data');
         photoWidth = 100;
 
         userData.append('rect')
@@ -124,7 +136,7 @@ function drawUserCanvas(twitterData){
     //User 
     //************************
     
-    userData1 = userPlot1.append('g').attr('class','user-data');
+    userData1 = currentCanvas.append('g').attr('class','user-data');
     photoWidth = 100;
     
     userData1.append('rect')
@@ -152,8 +164,8 @@ function drawUserCanvas(twitterData){
     }
 }
 
-function drawSidebarCanvas(twitterData){
-        sidebarData = sidebarPlot.append('g').attr('class','user-data');
+function drawSidebarCanvas(twitterData, currentCanvas){
+        sidebarData = currentCanvas.append('g').attr('class','user-data');
     
     sidebarData.append('rect')
         .attr('rx',5).attr('ry',5)
@@ -162,7 +174,7 @@ function drawSidebarCanvas(twitterData){
         .attr('width',130)
         .attr('height',20)
         .style('fill','rgba(95, 95, 95, .7)')
-        .on('click', mouseClickCategories);
+        .on('click', function(){mouseClickCategories(twitterData)});
     
     sidebarData.append('text')
         .style('text-anchor','middle')
@@ -172,7 +184,7 @@ function drawSidebarCanvas(twitterData){
         .style('font-size',12)
         .style('fill','white')
         .text('Separate Categories')
-        .on('click', mouseClickCategories);
+        .on('click', function(){mouseClickCategories(twitterData)});
     
     /*sidebarData.append('text')
         .style('text-anchor','left')
@@ -252,9 +264,10 @@ function drawSidebarCanvas(twitterData){
     
     sidebarData.append("foreignObject")
         //.attr("width", '100px')
-        .attr("height", 150)
+        //.attr("height", 150)
         //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
-        .append("xhtml:body") 
+        .attr('transform','translate(' + (userWidth/2-65) + ',150)')
+        //.append("xhtml:body") 
         //.attr('class','input-box')
         .html("<button id=\"popupButton\" onclick=\"div_show()\">Compare Users</button>")
         .attr('style','width:50px')
@@ -266,13 +279,58 @@ function drawSidebarCanvas(twitterData){
         //.on("submit", function(){inputName = document.getElementById("popUser1").value;
         //    console.log(inputName);
         //});
+
+    
+            var docBody = d3.select('.body');
+        
+        docBody.append("foreignObject")
+            //.attr("width", '100px')
+            //.attr("height", 40)
+            //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
+            .append("xhtml:body") 
+            .attr('class', 'popup-form')
+            .html("<div id=\"popupWindowDiv\"> <div id=\"popupWindow\"> <form action=\"#\" id=\"form-popup\"  name=\"form\">                <h3 class = \"h3-input\" >Enter 3 users to compare</h3>  <input class = \"popup-input\" id=\"popupUser1\" name=\"name\" placeholder=\"Name\" type=\"text\">     <input class = \"popup-input\" id=\"popupUser2\" name=\"name\" placeholder=\"Name\" type=\"text\">         <input class = \"popup-input\" id=\"popupUser3\" name=\"name\" placeholder=\"Name\" type=\"text\">       <input id=\"submitForm\" class=\"submitForm\" type=\"submit\" />  <a href=\"javascript:%20div_hide()\" id=\"close\">Close</a></form>     </div>      </div>");     
+
+                  //<a href=\"javascript:%20check_empty()\" id=\"submitForm\">Send</a>    </form>     </div>      </div>");
+
+      /*  formSubmit = d3.selectAll("#submitForm")    
+            .on("submit", function(){
+                inputName = document.getElementById("popUser1").value;
+                console.log(inputName);
+            });*/
+
+
+        $('#form-popup').submit(function () {
+            //call function to hide the popup
+            div_hide();
+            multUsers()
+            
+            //prevent screen from refreshing by returning false
+            return false;
+        });
+
+        //make an array to store names
+        userInput = [null,null,null];
+
+        var inputName1 = d3.select('#popupUser1').on('input', function(){
+            userInput[0] = this.value;
+        })
+
+        var inputName2 = d3.select('#popupUser2').on('input', function(){
+            userInput[1] = this.value;
+        })
+
+        var inputName3 = d3.select('#popupUser3').on('input', function(){
+            userInput[2] = this.value;
+        })
+    
         
 }
 
-function drawBubbles(twitterData){
+function drawBubbles(twitterData, currentCanvas){
     
      //legend
-     var legend = plot1.append('g').attr('class','legend');
+     var legend = currentCanvas.append('g').attr('class','legend');
     
      legend.append('circle')
         .attr('cx',-15).attr('cy',15).attr('r',5).style('fill','rgba(102, 0, 102,.6)').attr('class','legendCircle'); 
@@ -300,10 +358,10 @@ function drawBubbles(twitterData){
     
 }
 
-function drawTimeline(twitterData){
+function drawTimeline(twitterData,currentCanvas){
     if(singleUser){
         
-        timeline = plot2.append('g').attr('class','timelines');
+        timeline = currentCanvas.append('g').attr('class','timelines');
 
         var tweetInterval = twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate;
 
@@ -386,7 +444,7 @@ function drawTimeline(twitterData){
 
         //console.log(twitterData);
 
-        tweetCircGroup = plot2.selectAll('circ')
+        tweetCircGroup = currentCanvas.selectAll('circ')
             .append('g')
             .attr('class','circ-group');
 
@@ -402,46 +460,7 @@ function drawTimeline(twitterData){
             .on("mouseover", mouseHighlightTimeline)				
             .on("mouseout", noMouseHighlightTimeline)
             .on('click',timelineClick);
-
-        canvas1.append("foreignObject")
-            //.attr("width", '100px')
-            //.attr("height", 40)
-            //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
-            .append("xhtml:body") 
-            .attr('class', 'popup-form')
-            .html("<div id=\"popupWindowDiv\"> <div id=\"popupWindow\"> <form action=\"#\" id=\"form-popup\"  name=\"form\">                <h3>Enter 3 users to compare</h3>  <input class = \"popup-input\" id=\"popupUser1\" name=\"name\" placeholder=\"Name\" type=\"text\">     <input class = \"popup-input\" id=\"popupUser2\" name=\"name\" placeholder=\"Name\" type=\"text\">         <input class = \"popup-input\" id=\"popupUser3\" name=\"name\" placeholder=\"Name\" type=\"text\">       <input id=\"submitForm\" class=\"submitForm\" type=\"submit\" />  </form>     </div>      </div>");     
-
-                  //<a href=\"javascript:%20check_empty()\" id=\"submitForm\">Send</a>    </form>     </div>      </div>");
-
-      /*  formSubmit = d3.selectAll("#submitForm")    
-            .on("submit", function(){
-                inputName = document.getElementById("popUser1").value;
-                console.log(inputName);
-            });*/
-
-
-        $('#form-popup').submit(function () {
-            //call function to hide the popup
-            div_hide();
-
-            //prevent screen from refreshing by returning false
-            return false;
-        });
-
-        //make an array to store names
-        userInput = [null,null,null];
-
-        inputName1 = d3.select('#popupUser1').on('input', function(){
-            userInput[0] = this.value;
-        })
-
-        inputName2 = d3.select('#popupUser2').on('input', function(){
-            userInput[1] = this.value;
-        })
-
-        inputName3 = d3.select('#popupUser3').on('input', function(){
-            userInput[2] = this.value;
-        })
+        
 
     }                                               
     else {
@@ -474,7 +493,7 @@ function drawTimeline(twitterData){
                 
         
         
-        timeline = timelinePlot1.append('g').attr('class','timelines');
+        timeline = currentCanvas.append('g').attr('class','timelines');
 
         var tweetInterval = twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate;
 
@@ -557,7 +576,7 @@ function drawTimeline(twitterData){
 
         //console.log(twitterData);
 
-        tweetCircGroup = timelinePlot1.selectAll('circ')
+        tweetCircGroup = currentCanvas.selectAll('circ')
             .append('g')
             .attr('class','circ-group');
 //*******radius different!
@@ -574,12 +593,7 @@ function drawTimeline(twitterData){
             .on("mouseout", noMouseHighlightTimeline)
             .on('click',timelineClick);    
                 
-                
-                
-                
-                
-                
-                
+                 
 
        // }
     }

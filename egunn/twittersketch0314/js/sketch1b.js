@@ -14,7 +14,7 @@ var width2 = document.getElementById('timeline1').clientWidth - margin.r - margi
 var multiGravityOn = false;
 var circleSize = 4;
 var singleUser = false;
-var twitterData = null;
+//var twitterData = null;
 //var inputName = ['MichaelPollan', 'engunneer', 'thisissethsblog'];
 
 
@@ -78,7 +78,6 @@ plot1 = plotCanvas1.append('svg')
 
 
 
-
 userPlot2 = userCanvas2.append('svg')
     .attr('width',userWidth+margin.r+margin.l)
     .attr('height',userHeight + margin.t + margin.b)
@@ -126,29 +125,72 @@ plot3 = plotCanvas3.append('svg')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
+queue()
+    .defer(d3.json, "./SethGodin_0320_100timeline.json")
+    .defer(d3.json, "./AlbertoCairo_0320_100timeline.json")
+    .defer(d3.json, "./AmandaPalmer_0320_100timeline.json")
+    .await(function(err,data1, data2,data3) {
+        if (err){
+            console.log('error in queue');
+        }
+        
+        var twitterData = parse(data1);
+        var twitterData2 = parse(data2);
+        var twitterData3 = parse(data3);
+        
+        //console.log("await");
+        //call the draw function, pass it the loaded data
+        drawWindow(twitterData, twitterData2,twitterData3);
 
-d3.json("./SethGodin_0320_100timeline.json", function(error, data) {
-    
-    //check that you can access data (this gives follower count for a specific user)
-    //console.log(data.statuses[0].user.followers_count); 
-    
-    //load this link to call data live from Twitter
-    //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
-    
-    parse(data);
-})
+    });
 
+
+
+
+
+
+
+
+
+
+function parse(data){
+    console.log("parse")
+    
+    var parsedTweets = [];
+    
+    //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
+    //date is originally formatted in UTC time.
+    data.forEach(function(d){
+        var dateParse = Date.parse(d.created_at); 
+        d.parsedDate = dateParse;
+        parsedTweets.push(d);
+        
+    })
+    
+
+    var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
+        //sorts in date order
+        return tweetA.parsedDate - tweetB.parsedDate;
+    })
+
+    //drawUsers(sortedTweets);
+    //drawWindow(sortedTweets);
+
+    return(sortedTweets);
+}
+
+/*
 
 function drawUsers(data) {
-    
+    /*
     twitterData=data;
     
     console.log(data);
+    console.log(singleUser);
     
     drawUserCanvas(data);
     
 
-    
     bubbles(twitterData,plot1);
     bubbles(twitterData,plot2);
     bubbles(twitterData,plot3);
@@ -242,14 +284,6 @@ function drawUsers(data) {
         .style('font-size',14)
         .style('fill','gray')
         .text(data[0].user.name);
-    
-    /*    
-    plot3.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../GodinScreenshot.png");*/
 
     
      for(var i=0; i<4; i++){
@@ -279,31 +313,5 @@ function drawUsers(data) {
         }
      }
     
-    
-       
-    
-    
-}
+}*/
 
-function parse(data){
-    
-    var parsedTweets = [];
-    
-    //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
-    //date is originally formatted in UTC time.
-    data.forEach(function(d){
-        var dateParse = Date.parse(d.created_at); 
-        d.parsedDate = dateParse;
-        parsedTweets.push(d);
-        
-    })
-    
-
-    var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
-        //sorts in date order
-        return tweetA.parsedDate - tweetB.parsedDate;
-    })
-
-    drawUsers(sortedTweets);
-    
-}

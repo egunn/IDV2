@@ -33,6 +33,7 @@ var radiusScale = d3.scale.sqrt().domain([0,20000]).range([10,50]);
 var multiGravityOn = false;
 var circleSize = 8;
 var singleUser = true;
+//var twitterData = null;
 
 
 
@@ -181,7 +182,7 @@ function multUsers(){
 
 
 
-function mouseClickCategories() {
+function mouseClickCategories(twitterData) {
     if (multiGravityOn == true){
         multiGravityOn = false;
         
@@ -268,7 +269,7 @@ function mouseClickCategories() {
     //console.log(multiGravity);
     
     force.nodes(twitterData)
-        .on('tick',tick)
+        .on('tick',function(e){tick(e,twitterData)})
         .start();
 
 }
