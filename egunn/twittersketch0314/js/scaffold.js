@@ -292,6 +292,7 @@ function drawSidebarCanvas(twitterData, currentCanvas){
             .html("<div id=\"popupWindowDiv\"> <div id=\"popupWindow\"> <form action=\"#\" id=\"form-popup\"  name=\"form\">                <h3 class = \"h3-input\" >Enter 3 users to compare</h3>  <input class = \"popup-input\" id=\"popupUser1\" name=\"name\" placeholder=\"Name\" type=\"text\">     <input class = \"popup-input\" id=\"popupUser2\" name=\"name\" placeholder=\"Name\" type=\"text\">         <input class = \"popup-input\" id=\"popupUser3\" name=\"name\" placeholder=\"Name\" type=\"text\">       <input id=\"submitForm\" class=\"submitForm\" type=\"submit\" />  <a href=\"javascript:%20div_hide()\" id=\"close\">Close</a></form>     </div>      </div>");     
 
                   //<a href=\"javascript:%20check_empty()\" id=\"submitForm\">Send</a>    </form>     </div>      </div>");
+                  //method=\"POST\" action=\"passToPHP.php\" 
 
       /*  formSubmit = d3.selectAll("#submitForm")    
             .on("submit", function(){
@@ -316,6 +317,12 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         })
         
         $('#form-popup').submit(function () {
+            console.log(packDataForPHP(userInput));
+            
+            //call the php page to save the data for sketch1b to load
+            $.post('http://ericagunn.com/Twitter/sendToPHP.php', packDataForPHP(userInput), function(data, status){
+        //alert("Data: " + data + "\nStatus: " + status);
+    });
             //call function to hide the popup
             div_hide();
             multUsers(userInput);

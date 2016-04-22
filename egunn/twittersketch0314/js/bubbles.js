@@ -84,12 +84,25 @@ function bubbles(twitterData, plotHandle){
             .on('click', tweetClick);
     }
 
+    //console.log(plotHandle);
+    
+    
+    
+    var safety = 0;
+    while(force.alpha() > 0.075) { // You'll want to try out different, "small" values for this
+        force.tick();
+        if(safety++ > 500) {
+          break;// Avoids infinite looping in case this solution was a bad idea
+    }
+    }
+    
+    
 
     //Collision detection
     //array into force layout, updates start to happen, updated accordingly
     //link nodes var to twitter data array
     force.nodes(twitterData)
-        .on('tick',function(e){ tick(e,twitterData);})
+        .on('tick',function(e){ tick(e,twitterData,plotHandle);})
         .start();
     
     

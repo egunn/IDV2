@@ -218,22 +218,54 @@ function reloadData(inputName){
 }
 
 
-function tick(e,twitterData){
+function tick(e,twitterData,plotHandle){
       //implement custom tick function.
     
         var twitterData = twitterData;
     
         circleGroups = d3.selectAll('.circ-group');
 
-        circles = plot1.selectAll('.circ');
-        circles.each(collide(.15));
+        if (singleUser) {
+            circles = plot1.selectAll('.circ');
+            circles.each(collide(.15));
+        }
+    
+        //console.log(plotHandle);
+        var plotTracker = 0;
+    
+        if (!singleUser) {
+            if (circle1 & circle2) {
+                circle3 = plotHandle.selectAll('.circ');
+                circle3.each(collide(.1));
+                plotTracker = 3;
+            }
+            else if(circle1) {
+                circle2 = plotHandle.selectAll('.circ');
+                circle2.each(collide(.1));
+                plotTracker = 2;
+            }
+            else {
+                circle1 = plotHandle.selectAll('.circ');
+                circle1.each(collide(.1));
+                plotTracker = 1;
+            }
+        }
 
         if (!multiGravityOn){
             if(singleUser){
                 circles.each(gravity(.01));//gravity(.01);
             }
             else {
-                circles.each(gravity(.15));//gravity(.01);
+                if (plotTracker == 3) {
+                    circle3.each(gravity(.15));
+                }
+                else if(plotTracker == 2) {
+                    circle2.each(gravity(.15));
+                }
+                else {
+                    circle1.each(gravity(.15));
+                }
+
             }
         }
 
@@ -303,7 +335,7 @@ function collide(alpha){
                 r = d.r + quad.point.r + (circleSize*2+4);
             }
             else {
-                r = d.r + quad.point.r + (circleSize*6);
+                r = d.r + quad.point.r + (circleSize*7);
             }
         if (l < r) {
           l = (l - r) / l * alpha;

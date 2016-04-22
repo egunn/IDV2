@@ -25,7 +25,7 @@ function div_show() {
 
 //Function to Hide Popup
 function div_hide(){
-    console.log('div_hide')
+    //console.log('div_hide')
     //inputName1 = document.getElementById("#popUser1").value;
     //test = 52;
     //console.log(test);
@@ -44,4 +44,24 @@ function popupPressed(){
     
     //window.location = "../popupform.html";
     
+}
+
+
+//from https://www.boutell.com/newfaq/creating/scriptpass.html
+function packDataForPHP(userInput)
+{
+  // Initialize packed or we get the word 'undefined'
+  var packed = "";
+  for (i = 0; (i < userInput.length); i++) {
+      if(userInput[i]){
+        if (i > 0) {
+          packed += ",";
+        }
+        packed += escape(userInput[i]);
+      }
+  }
+    
+  return 'data=' + packed;
+  //document.data.data.value = packed;
+  //document.data.submit();
 }

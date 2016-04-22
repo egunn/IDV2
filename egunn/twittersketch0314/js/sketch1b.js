@@ -16,6 +16,9 @@ var circleSize = 4;
 var singleUser = false;
 //var twitterData = null;
 //var inputName = ['MichaelPollan', 'engunneer', 'thisissethsblog'];
+var circle1 = null;
+var circle2 = null;
+var circle3 = null;
 
 
 //select the HTML plot element by class
@@ -126,6 +129,14 @@ plot3 = plotCanvas3.append('svg')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
 var userInput = null;
+//load http://ericagunn.com/Twitter/getUsersToCompare.json (via a php script!) to get the array of names
+
+d3.json("http://ericagunn.com/Twitter/getFromPHP.php", function(error, fromPHP) {
+
+    //ask the server for names input from user
+    userInput = fromPHP;
+
+
 //var userInput = ['@jonathanfields', '@engunneer', '@michaelpollan'];
 
 //if the user has entered data, use it to query the Twitter API
@@ -141,14 +152,19 @@ if(userInput){
     }*/
     
     var toLookup = userInput[0];
-    var toLookup2 = userInput[1];
-    var toLookup3 = userInput[2];
+    if (userInput[1] != 'undefined'){
+        var toLookup2 = userInput[1];
+    }
+    if (userInput[2] != 'undefined'){
+        var toLookup3 = userInput[2];
+    }
     
     queue()
         .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup + '&count=100')
         .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup2 + '&count=100')
         .defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + toLookup3 + '&count=100')
         .await(function(err,data1, data2,data3) {
+        
             var twitterData = parse(data1);
             var twitterData2 = parse(data2);
             var twitterData3 = parse(data3);
@@ -158,6 +174,7 @@ if(userInput){
             drawWindow(twitterData, twitterData2,twitterData3);
     })
 }
+        
 
 //if the user hasn't identified users to compare (should be impossible)
 //in the final version), then load static data from folder.
@@ -170,7 +187,7 @@ else {
             if (err){
                 console.log('error in queue');
             }
-
+        
             var twitterData = parse(data1);
             var twitterData2 = parse(data2);
             var twitterData3 = parse(data3);
@@ -184,7 +201,7 @@ else {
 }
 
 
-
+})
 
 
 
@@ -194,27 +211,32 @@ else {
 
 function parse(data){
     
-    var parsedTweets = [];
-    
-    //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
-    //date is originally formatted in UTC time.
-    data.forEach(function(d){
-        var dateParse = Date.parse(d.created_at); 
-        d.parsedDate = dateParse;
-        parsedTweets.push(d);
-        
-    })
-    
+    if (data.error == 'Not authorized.'){
+        return;
+    }
+    else {
+        var parsedTweets = [];
 
-    var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
-        //sorts in date order
-        return tweetA.parsedDate - tweetB.parsedDate;
-    })
+        //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
+        //date is originally formatted in UTC time.
+        data.forEach(function(d){
+            var dateParse = Date.parse(d.created_at); 
+            d.parsedDate = dateParse;
+            parsedTweets.push(d);
 
-    //drawUsers(sortedTweets);
-    //drawWindow(sortedTweets);
+        })
 
-    return(sortedTweets);
+
+        var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
+            //sorts in date order
+            return tweetA.parsedDate - tweetB.parsedDate;
+        })
+
+        //drawUsers(sortedTweets);
+        //drawWindow(sortedTweets);
+
+        return(sortedTweets);
+    }
 }
 
 /*
