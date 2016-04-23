@@ -112,7 +112,7 @@ input {
     background: rgba(95, 95, 95, .7); 
     font-family: "Roboto",Arial,sans-serif; 
     color:white; 
-    padding: 0px 1px; 
+    padding: 0px 1px 0px 3px; 
     font-size: 12px; 
     height: 20px;
     width:130px;

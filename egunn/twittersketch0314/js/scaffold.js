@@ -9,7 +9,7 @@ function drawWindow(data,data2,data3) {
     if (data3){
         twitterData3 = data3;
     }
-    
+     
     //console.log(singleUser);
     
     if (singleUser){
@@ -217,7 +217,7 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         .style('font-size',14)
         .style('fill','gray')
         .text("or:");*/
-    
+    /*
     sidebarData.append('rect')
         .attr('rx',5).attr('ry',5)
         .attr('x',userWidth/2-65)
@@ -235,6 +235,7 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         .style('fill','white')
         .text('Compare users')
         .on('click', multUsers);
+    */
     
     var inputName = undefined;
     
@@ -260,13 +261,12 @@ function drawSidebarCanvas(twitterData, currentCanvas){
     });
     
 
-    
-    
+        
     sidebarData.append("foreignObject")
         //.attr("width", '100px')
         //.attr("height", 150)
         //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
-        .attr('transform','translate(' + (userWidth/2-65) + ',150)')
+        .attr('transform','translate(' + (userWidth/2-65) + ',135)')
         //.append("xhtml:body") 
         //.attr('class','input-box')
         .html("<button id=\"popupButton\" onclick=\"div_show()\">Compare Users</button>")
@@ -368,6 +368,7 @@ function drawBubbles(twitterData, currentCanvas){
 }
 
 function drawTimeline(twitterData,currentCanvas){
+    
     if(singleUser){
         
         timeline = currentCanvas.append('g').attr('class','timelines');
@@ -602,8 +603,12 @@ function drawTimeline(twitterData,currentCanvas){
             .on("mouseout", noMouseHighlightTimeline)
             .on('click',timelineClick);    
                 
-                 
 
+        
+        if (twitterData.legend == true){
+            drawLegend();
+        }
+        
        // }
     }
     

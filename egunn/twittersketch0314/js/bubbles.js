@@ -87,9 +87,8 @@ function bubbles(twitterData, plotHandle){
     //console.log(plotHandle);
     
     
-    
     var safety = 0;
-    while(force.alpha() > 0.075) { // You'll want to try out different, "small" values for this
+    while(force.alpha() > 0.045) { // You'll want to try out different, "small" values for this
         force.tick();
         if(safety++ > 500) {
           break;// Avoids infinite looping in case this solution was a bad idea
@@ -104,6 +103,7 @@ function bubbles(twitterData, plotHandle){
     force.nodes(twitterData)
         .on('tick',function(e){ tick(e,twitterData,plotHandle);})
         .start();
+    
     
     
     var satNodes = [];
@@ -194,8 +194,16 @@ function bubbles(twitterData, plotHandle){
                               return "rotate(" + (d.x*10) + ") translate(" + ((circleSize +circleSize/4) + (i*.05)) + ")";
                           }
                           else {
-                              return "rotate(" + (d.x*15) + ") translate(" + ((circleSize +circleSize/4) + (i*.01)) + ")";
+                              if(singleUser){
+                                  return "rotate(" + (d.x*15*circleSize/2) + ") translate(" + ((circleSize +circleSize/4) + 
+                                    (i*.01)) + ")";
+                              }
+                              else{
+                                  return "rotate(" + (d.x*15*circleSize/4) + ") translate(" + ((circleSize +circleSize/4) + 
+                                    (i*.01*circleSize/64)) + ")";
+                              }
                           }
+
                       });
                       
 
@@ -204,6 +212,7 @@ function bubbles(twitterData, plotHandle){
                     .style("fill",'rgba(95, 95, 95, .7)'); 
 
 
+                
                 
     }) //close .each  
     

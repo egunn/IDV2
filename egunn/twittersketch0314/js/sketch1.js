@@ -53,7 +53,8 @@ var canvas2 = d3.select(".plot2");
 var force = d3.layout.force()
     .size([width1,height1])
     .charge(-5)
-    .gravity(0.05);
+    .gravity(0.05)
+    .alpha(.1);
 
 
 // Define the div for the tooltip

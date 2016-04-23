@@ -128,18 +128,105 @@ plot3 = plotCanvas3.append('svg')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
+//reset userInput variable
 var userInput = null;
-//load http://ericagunn.com/Twitter/getUsersToCompare.json (via a php script!) to get the array of names
 
+//Get the list of users input in sketch1 from the server
 d3.json("http://ericagunn.com/Twitter/getFromPHP.php", function(error, fromPHP) {
 
     //ask the server for names input from user
     userInput = fromPHP;
 
-
 //var userInput = ['@jonathanfields', '@engunneer', '@michaelpollan'];
-
+    
 //if the user has entered data, use it to query the Twitter API
+//dynamic queue from http://stackoverflow.com/questions/21687230/dynamically-change-the-number-of-defer-calls-in-queue-js
+    
+var q = queue();
+if (userInput){
+    for (var i = 0; i < userInput.length; i++){
+        if (userInput[i] != "undefined"){
+            q = q.defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + userInput[i] + '&count=100');
+        }
+    }
+}
+    
+q.await(function(error){
+     //var nameStem = "twitterData";
+    //var twitterData1 = false, twitterData2 = false, twitterData3 = false;
+    
+    if(!error){
+    
+        if (arguments.length == 2){
+            var userData1 = arguments[1];
+            
+            var twitterData1 = parse(userData1);
+            twitterData1.legend = true;
+                      
+            drawWindow(twitterData1);
+    
+        }
+        if (arguments.length == 3){
+            var userData1 = arguments[1];
+            var userData2 = arguments[2];
+            
+            var twitterData1 = parse(userData1);
+            var twitterData2 = parse(userData2);
+            
+            twitterData1.legend = true;
+            
+            drawWindow(twitterData1,twitterData2);
+        }
+        if (arguments.length == 4){
+            var userData1 = arguments[1];
+            var userData2 = arguments[2];
+            var userData3 = arguments[3];
+            
+            var twitterData1 = parse(userData1);
+            var twitterData2 = parse(userData2);
+            var twitterData3 = parse(userData3);
+            
+            twitterData1.legend = true;
+            
+            drawWindow(twitterData1,twitterData2,twitterData3);
+        }
+        
+    }
+});
+    
+})
+
+function drawLegend(){
+                 
+        var timeline = d3.select('#timeline1');
+    
+        legend = timeline.select('svg')
+            .append('g')
+            .attr('class', 'legend');
+    
+         legend.append('circle')
+            .attr('cx',80).attr('cy',5).attr('r',5).style('fill','rgba(102, 0, 102,.6)').attr('class','legendCircle'); 
+         legend.append('text').attr('class','legendLabel-retweet legendLabel')
+            .attr('x',88).attr('y',8).text("retweet");
+
+         legend.append('circle')
+            .attr('cx',160).attr('cy',5).attr('r',5).style('fill','rgba(0, 179, 179,.6)').attr('class','legendCircle');
+         legend.append('text').attr('class','legendLabel-reply legendLabel')
+            .attr('x',168).attr('y',8).text("@reply");
+
+         legend.append('circle')
+            .attr('cx',240).attr('cy',5).attr('r',5).style('fill','rgba(255, 140, 26,.6)').attr('class','legendCircle');
+         legend.append('text').attr('class','legendLabel-new legendLabel')
+            .attr('x',248).attr('y',8).text("new tweet");
+
+         legend.append('circle')
+            .attr('cx',320).attr('cy',5).attr('r',2).style('fill','rgba(95, 95, 95, .7)').attr('class','legendCircle legendCircle-satellite');
+         legend.append('text').attr('class','legendLabel-satellite legendLabel')
+            .attr('x',325).attr('y',8).text("# retweets");  
+   
+}
+    
+    /*
 if(userInput){
     /*
     if (inputName[0] == '@'){
@@ -149,9 +236,12 @@ if(userInput){
     else {
         inputName = '@' + inputName;
         //console.log(inputName);
-    }*/
+    }
     
     var toLookup = userInput[0];
+    
+    console.log(userInput);
+    
     if (userInput[1] != 'undefined'){
         var toLookup2 = userInput[1];
     }
@@ -201,7 +291,7 @@ else {
 }
 
 
-})
+})*/
 
 
 

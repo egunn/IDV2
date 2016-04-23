@@ -234,6 +234,11 @@ function tick(e,twitterData,plotHandle){
         var plotTracker = 0;
     
         if (!singleUser) {
+            
+            if(force.alpha() <= 0.097){
+                force.stop();
+            }
+            
             if (circle1 & circle2) {
                 circle3 = plotHandle.selectAll('.circ');
                 circle3.each(collide(.1));
