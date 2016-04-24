@@ -1,5 +1,7 @@
+//sets up multiple user page, runs when sketch1b loaded
+
 //set some margins and record width and height of window
-var margin = {t:25,r:40,b:25,l:40};
+var margin = {t:25,r:10,b:25,l:10};
 
 var userWidth = document.getElementById('user1').clientWidth - margin.r - margin.l,  
     userHeight = document.getElementById('user1').clientHeight - margin.t - margin.b;
@@ -9,6 +11,13 @@ var width1 = document.getElementById('plot1').clientWidth - margin.r - margin.l,
 
 var width2 = document.getElementById('timeline1').clientWidth - margin.r - margin.l,  
     height2 = document.getElementById('timeline1').clientHeight - margin.t - margin.b;
+
+var multiGravityOn = false;
+var circleSize = 4;
+var singleUser = false;
+var circle1 = null;
+var circle2 = null;
+var circle3 = null;
 
 
 //select the HTML plot element by class
@@ -40,6 +49,12 @@ var timelineCanvas3 = d3.select("#timeline3");
 //select the HTML plot element by class
 var plotCanvas3 = d3.select("#plot3");
 
+//create force layout, give charge and gravity
+var force = d3.layout.force()
+    .size([width1,height1])
+    .charge(0)
+    .gravity(0.001);
+
 
 userPlot1 = userCanvas1.append('svg')
     .attr('width',userWidth+margin.r+margin.l)
@@ -62,7 +77,6 @@ plot1 = plotCanvas1.append('svg')
     .append('g')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
-
 
 
 userPlot2 = userCanvas2.append('svg')
@@ -112,243 +126,130 @@ plot3 = plotCanvas3.append('svg')
     .attr('class','canvas1')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
+//reset userInput variable
+var userInput = null;
 
-d3.json("./SethGodin_0320_100timeline.json", function(error, data) {
-    
-    //check that you can access data (this gives follower count for a specific user)
-    //console.log(data.statuses[0].user.followers_count); 
-    
-    //load this link to call data live from Twitter
-    //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
-    
-    parse(data);
-})
+//Get the list of users input in sketch1 from the server
+d3.json("http://ericagunn.com/Twitter/getFromPHP.php", function(error, fromPHP) {
 
+    //ask the server for names input from user
+    userInput = fromPHP;
 
-function drawUsers(data) {
     
-    twitterData=data;
+//if the user has entered data, use it to query the Twitter API
+//dynamic queue from http://stackoverflow.com/questions/21687230/dynamically-change-the-number-of-defer-calls-in-queue-js
+//use this to load one file for each username that the user entered into the form - between 1 and 3
+var q = queue();
+if (userInput){
+    for (var i = 0; i < userInput.length; i++){
+        if (userInput[i] != "undefined"){
+            q = q.defer(d3.json, 'http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=' + userInput[i] + '&count=100');
+        }
+    }
+}
+
+//tell queue when it's done. Use the arguments parameter to find out how many datasets should be loading    
+q.await(function(error){
     
-    console.log(data);
+    if(!error){
     
-     //************************
-    //User 
-    //************************
+        if (arguments.length == 2){
+            var userData1 = arguments[1];
+            
+            var twitterData1 = parse(userData1);
+            twitterData1.legend = true;
+                      
+            drawWindow(twitterData1);
     
-    userData1 = userPlot1.append('g').attr('class','user-data');
-    photoWidth = 100;
-    
-    userData1.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-photoWidth/2)
-        .attr('y',0)
-        .attr('width',photoWidth)
-        .attr('height',photoWidth)
-        .style('fill','lightgray');
-    
-    userData1.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+5)
-       .attr('y',5)
-       .attr('width', 90)
-       .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/2992761845/bc2f1ddf99da4c777b98768be883078e_normal.jpeg");
-    
-    userData1.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',115)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text('Michael Pollan');
-    
-    plot1.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../PollanScreenshot.png");
-    
-    
-    
-    for(var i=0; i<4; i++){
-        
-        timelinePlot1.append('line')
-            .attr('x1',55)
-            .attr('y1',15+i*25)
-            .attr('x2',width2-30)
-            .attr('y2',15+i*25)
-            .style('stroke','gray')
-            .style('stroke-width',0.2);
-        
-        timelinePlot1.append('text')
-            .style('text-anchor','left')
-            .attr('x',5)
-            .attr('y',15+i*25+3)
-            .style('font-size',10)  
-            .style('fill','gray')
-            .text('3/'+ (i +10)+ '/16');
-        
-        for (var j = 0; j < 10; j++){
-            timelinePlot1.append('circle')
-                .attr('cx', Math.random()*(width2-125)+60)
-                .attr('cy', 15+i*25)
-                .attr('r',4)
-                .style('fill','rgba(153, 185, 230,.5')
+        }
+        if (arguments.length == 3){
+            var userData1 = arguments[1];
+            var userData2 = arguments[2];
+            
+            var twitterData1 = parse(userData1);
+            var twitterData2 = parse(userData2);
+            
+            twitterData1.legend = true;
+            
+            drawWindow(twitterData1,twitterData2);
+        }
+        if (arguments.length == 4){
+            var userData1 = arguments[1];
+            var userData2 = arguments[2];
+            var userData3 = arguments[3];
+            
+            var twitterData1 = parse(userData1);
+            var twitterData2 = parse(userData2);
+            var twitterData3 = parse(userData3);
+            
+            twitterData1.legend = true;
+            
+            drawWindow(twitterData1,twitterData2,twitterData3);
         }
         
     }
+});
     
-    
-    
-    userData2 = userPlot2.append('g').attr('class','user-data');
-    photoWidth = 100;
-    
-    userData2.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-photoWidth/2)
-        .attr('y',0)
-        .attr('width',photoWidth)
-        .attr('height',photoWidth)
-        .style('fill','lightgray');
-    
-    userData2.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+5)
-       .attr('y',5)
-       .attr('width', 90)
-       .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/458793804904947712/kK2hkAOC_normal.jpeg");
-    
-    userData2.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',115)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text('Alberto Cairo');
-    
-        
-    plot2.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../CairoScreenshot.png");
-    
-    
-        
-     for(var i=0; i<4; i++){
-        
-        timelinePlot2.append('line')
-            .attr('x1',55)
-            .attr('y1',15+i*25)
-            .attr('x2',width2-30)
-            .attr('y2',15+i*25)
-            .style('stroke','gray')
-            .style('stroke-width',0.2);
-        
-        timelinePlot2.append('text')
-            .style('text-anchor','left')
-            .attr('x',5)
-            .attr('y',15+i*25+3)
-            .style('font-size',10)  
-            .style('fill','gray')
-            .text('3/'+ (i +10)+ '/16');
-        
-        for (var j = 0; j < 10; j++){
-            timelinePlot2.append('circle')
-                .attr('cx', Math.random()*(width2-125)+60)
-                .attr('cy', 15+i*25)
-                .attr('r',4)
-                .style('fill','rgba(153, 185, 230,.5')
-        }
-     }
-    
-    
-    
-    userData3 = userPlot3.append('g').attr('class','user-data');
-    photoWidth = 100;
-    
-    userData3.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-photoWidth/2)
-        .attr('y',0)
-        .attr('width',photoWidth)
-        .attr('height',photoWidth)
-        .style('fill','lightgray');
-    
-    userData3.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+5)
-       .attr('y',5)
-       .attr('width', 90)
-       .attr('height', 90)
-       .attr("xlink:href","http://pbs.twimg.com/profile_images/67490765/bloghead_normal.jpg");
-    
-    userData3.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',115)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text('Seth Godin');
-    
-        
-    plot3.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+15)
-       .attr('y',-20)
-       .attr('width',130)
-       .attr('height', 130)
-       .attr("xlink:href","../GodinScreenshot.png");
+})
 
+//draw the legend for the multiple user screen
+function drawLegend(){
+                 
+        var timeline = d3.select('#timeline1');
     
-     for(var i=0; i<4; i++){
-        
-        timelinePlot3.append('line')
-            .attr('x1',55)
-            .attr('y1',15+i*25)
-            .attr('x2',width2-30)
-            .attr('y2',15+i*25)
-            .style('stroke','gray')
-            .style('stroke-width',0.2);
-        
-        timelinePlot3.append('text')
-            .style('text-anchor','left')
-            .attr('x',5)
-            .attr('y',15+i*25+3)
-            .style('font-size',10)  
-            .style('fill','gray')
-            .text('3/'+ (i +10)+ '/16');
-        
-        for (var j = 0; j < 10; j++){
-            timelinePlot3.append('circle')
-                .attr('cx', Math.random()*(width2-125)+60)
-                .attr('cy', 15+i*25)
-                .attr('r',4)
-                .style('fill','rgba(153, 185, 230,.5')
-        }
-     }
+        legend = timeline.select('svg')
+            .append('g')
+            .attr('class', 'legend');
     
-    
+         legend.append('circle')
+            .attr('cx',80).attr('cy',5).attr('r',5).style('fill','rgba(102, 0, 102,.6)').attr('class','legendCircle'); 
+         legend.append('text').attr('class','legendLabel-retweet legendLabel')
+            .attr('x',88).attr('y',8).text("retweet");
+
+         legend.append('circle')
+            .attr('cx',160).attr('cy',5).attr('r',5).style('fill','rgba(0, 179, 179,.6)').attr('class','legendCircle');
+         legend.append('text').attr('class','legendLabel-reply legendLabel')
+            .attr('x',168).attr('y',8).text("@reply");
+
+         legend.append('circle')
+            .attr('cx',240).attr('cy',5).attr('r',5).style('fill','rgba(255, 140, 26,.6)').attr('class','legendCircle');
+         legend.append('text').attr('class','legendLabel-new legendLabel')
+            .attr('x',248).attr('y',8).text("new tweet");
+
+         legend.append('circle')
+            .attr('cx',320).attr('cy',5).attr('r',2).style('fill','rgba(95, 95, 95, .7)').attr('class','legendCircle legendCircle-satellite');
+         legend.append('text').attr('class','legendLabel-satellite legendLabel')
+            .attr('x',325).attr('y',8).text("# retweets");  
+   
 }
+    
 
+//sort the tweets in date order
 function parse(data){
     
-    var parsedTweets = [];
-    
-    //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
-    //date is originally formatted in UTC time.
-    data.forEach(function(d){
-        var dateParse = Date.parse(d.created_at); 
-        d.parsedDate = dateParse;
-        parsedTweets.push(d);
-        
-    })
-    
+    if (data.error == 'Not authorized.'){
+        return;
+    }
+    else {
+        var parsedTweets = [];
 
-    var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
-        //sorts in date order
-        return tweetA.parsedDate - tweetB.parsedDate;
-    })
+        //converts Twitter date to Unix Epoch time (ms since Jan 1, 1970)
+        //date is originally formatted in UTC time.
+        data.forEach(function(d){
+            var dateParse = Date.parse(d.created_at); 
+            d.parsedDate = dateParse;
+            parsedTweets.push(d);
 
-    drawUsers(sortedTweets);
-    
+        })
+
+
+        var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
+            //sorts in date order
+            return tweetA.parsedDate - tweetB.parsedDate;
+        })
+
+        return(sortedTweets);
+    }
 }
+
+

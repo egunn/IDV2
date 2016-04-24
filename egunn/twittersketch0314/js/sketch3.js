@@ -24,8 +24,6 @@ plot = canvas.append('svg')
 d3.json("./RoxanneGay_0320_100timeline.json", function(error, data) {
     
     //check that you can access data (this gives follower count for a specific user)
-    //console.log(data.statuses[0].user.followers_count); 
-    
     parse(data);
 })
 
