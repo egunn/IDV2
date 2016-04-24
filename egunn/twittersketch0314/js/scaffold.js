@@ -1,5 +1,8 @@
+//take up to three data inputs, and draw the canvas elements necessary for the 
+//requested page
 function drawWindow(data,data2,data3) {
     
+    //check how many inputs there are
     var twitterData=data;
     var twitterData2 = false;
     var twitterData3 = false;
@@ -9,8 +12,6 @@ function drawWindow(data,data2,data3) {
     if (data3){
         twitterData3 = data3;
     }
-     
-    //console.log(singleUser);
     
     if (singleUser){
         
@@ -49,20 +50,16 @@ function drawWindow(data,data2,data3) {
             bubbles(twitterData3,plot3);
             drawTimeline(twitterData3,timelinePlot3);
         }
-        
-        
-        
+         
         
     }
     
 }
 
+//draw the user section of the page; photo, name, username, followers
 function drawUserCanvas(twitterData,currentCanvas){
 
     if (singleUser) {
-        //************************
-        //User 
-        //************************
 
         userData = currentCanvas.append('g').attr('class','user-data');
         photoWidth = 100;
@@ -75,35 +72,12 @@ function drawUserCanvas(twitterData,currentCanvas){
             .attr('height',photoWidth)
             .style('fill','lightgray');
 
-        /*
-        //Can't make sense of this, not sure it's worth the time. Come back later?
-        //https://gist.github.com/mbostock/3468167
-        var rect = userPlot.append("path")
-            .attr("d", topLeftRoundedRect(0, 0, 50, 100, 5));
-        // Returns path data for a rectangle with rounded right corners.
-        // Note: it’s probably easier to use a <rect> element with rx and ry attributes!
-        // The top-left corner is ⟨x,y⟩.
-        function topLeftRoundedRect(x, y, width, height, radius) {
-          //M = coord to begin path, h = horizontal line, a = arc (rx,ry,xrotation),    
-          return "M" + 0 + "," + 200
-               + "v" + -50
-               + "a" + 30 + "," + 30 + " 90 1 0 " + 30 + "," + 20
-               + "h" + 75
-               + "v" + -100
-
-
-               //+ "v" + (0)
-               //+ "h" + (width/2);
-               //+ "z";
-        }*/
-
         userData.append("svg:image")
            .attr('x',5)//userWidth/2-photoWidth/2+5)
            .attr('y',15)
            .attr('width', 90)
            .attr('height', 90)
            .attr("xlink:href",twitterData[0].user.profile_image_url);
-
 
         userData.append('text')
             .style('text-anchor','middle')
@@ -121,7 +95,6 @@ function drawUserCanvas(twitterData,currentCanvas){
             .style('fill','gray')
             .text('@'+twitterData[0].user.screen_name);
 
-
         userData.append('text')
             .style('text-anchor','middle')
             .attr('x',50)//userWidth/2)
@@ -132,40 +105,38 @@ function drawUserCanvas(twitterData,currentCanvas){
     }
     
     else {
-    //************************
-    //User 
-    //************************
     
-    userData1 = currentCanvas.append('g').attr('class','user-data');
-    photoWidth = 100;
-    
-    userData1.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-photoWidth/2)
-        .attr('y',0)
-        .attr('width',photoWidth)
-        .attr('height',photoWidth)
-        .style('fill','lightgray');
-    
-    userData1.append("svg:image")
-       .attr('x',userWidth/2-photoWidth/2+5)
-       .attr('y',5)
-       .attr('width', 90)
-       .attr('height', 90)
-       .attr("xlink:href",twitterData[0].user.profile_image_url);
-    
-    userData1.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',115)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text(twitterData[0].user.name);
+        userData1 = currentCanvas.append('g').attr('class','user-data');
+        photoWidth = 100;
+
+        userData1.append('rect')
+            .attr('rx',5).attr('ry',5)
+            .attr('x',userWidth/2-photoWidth/2)
+            .attr('y',0)
+            .attr('width',photoWidth)
+            .attr('height',photoWidth)
+            .style('fill','lightgray');
+
+        userData1.append("svg:image")
+           .attr('x',userWidth/2-photoWidth/2+5)
+           .attr('y',5)
+           .attr('width', 90)
+           .attr('height', 90)
+           .attr("xlink:href",twitterData[0].user.profile_image_url);
+
+        userData1.append('text')
+            .style('text-anchor','middle')
+            .attr('x',userWidth/2)
+            .attr('y',115)
+            .style('font-size',14)
+            .style('fill','gray')
+            .text(twitterData[0].user.name);
     }
 }
 
+//draw the sidebar buttons and input boxes
 function drawSidebarCanvas(twitterData, currentCanvas){
-        sidebarData = currentCanvas.append('g').attr('class','user-data');
+    sidebarData = currentCanvas.append('g').attr('class','user-data');
     
     sidebarData.append('rect')
         .attr('rx',5).attr('ry',5)
@@ -185,57 +156,6 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         .style('fill','white')
         .text('Separate Categories')
         .on('click', function(){mouseClickCategories(twitterData)});
-    
-    /*sidebarData.append('text')
-        .style('text-anchor','left')
-        .attr('x',userWidth/2-65)
-        .attr('y',75)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text("New user:");
-    
-    sidebarData.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-65)
-        .attr('y',75+10)
-        .attr('width',130)
-        .attr('height',20)
-        .style('fill','rgba(95, 95, 95, .7)');
-    
-    sidebarData.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2-55)
-        .attr('y',75+23)
-        .style('font-size',8)
-        .style('fill','white')
-        .text('|');
-        
-    sidebarData.append('text')
-        .style('text-anchor','left')
-        .attr('x',userWidth/2-65)
-        .attr('y',150-10)
-        .style('font-size',14)
-        .style('fill','gray')
-        .text("or:");*/
-    /*
-    sidebarData.append('rect')
-        .attr('rx',5).attr('ry',5)
-        .attr('x',userWidth/2-65)
-        .attr('y',150)
-        .attr('width',130)
-        .attr('height',20)
-        .style('fill','rgba(95, 95, 95, .7)')
-        .on('click', multUsers);
-    
-    sidebarData.append('text')
-        .style('text-anchor','middle')
-        .attr('x',userWidth/2)
-        .attr('y',150+14)
-        .style('font-size',12)
-        .style('fill','white')
-        .text('Compare users')
-        .on('click', multUsers);
-    */
     
     var inputName = undefined;
     
@@ -260,8 +180,7 @@ function drawSidebarCanvas(twitterData, currentCanvas){
             //do something
     });
     
-
-        
+    //create the Compare Users button to call the popup form    
     sidebarData.append("foreignObject")
         //.attr("width", '100px')
         //.attr("height", 150)
@@ -269,73 +188,54 @@ function drawSidebarCanvas(twitterData, currentCanvas){
         .attr('transform','translate(' + (userWidth/2-65) + ',135)')
         //.append("xhtml:body") 
         //.attr('class','input-box')
-        .html("<button id=\"popupButton\" onclick=\"div_show()\">Compare Users</button>")
+        .html("<button id=\"popupButton\" >Compare Users</button>")
         .attr('style','width:50px')
         .on("click", function() {
-            console.log('div_show');
-            //popupPressed();
+
             document.getElementById('popupWindowDiv').style.display = "block";
         });
-        //.on("submit", function(){inputName = document.getElementById("popUser1").value;
-        //    console.log(inputName);
-        //});
 
     
-            var docBody = d3.select('.body');
-        
-        docBody.append("foreignObject")
-            //.attr("width", '100px')
-            //.attr("height", 40)
-            //.attr('transform', 'translate(' + (userWidth/2-94) + ',65)')  
+    var docBody = d3.select('.body');
+    
+    //create the popup form
+    docBody.append("foreignObject")
             .append("xhtml:body") 
             .attr('class', 'popup-form')
             .html("<div id=\"popupWindowDiv\"> <div id=\"popupWindow\"> <form action=\"#\" id=\"form-popup\"  name=\"form\">                <h3 class = \"h3-input\" >Enter 3 users to compare</h3>  <input class = \"popup-input\" id=\"popupUser1\" name=\"name\" placeholder=\"Name\" type=\"text\">     <input class = \"popup-input\" id=\"popupUser2\" name=\"name\" placeholder=\"Name\" type=\"text\">         <input class = \"popup-input\" id=\"popupUser3\" name=\"name\" placeholder=\"Name\" type=\"text\">       <input id=\"submitForm\" class=\"submitForm\" type=\"submit\" />  <a href=\"javascript:%20div_hide()\" id=\"close\">Close</a></form>     </div>      </div>");     
 
-                  //<a href=\"javascript:%20check_empty()\" id=\"submitForm\">Send</a>    </form>     </div>      </div>");
-                  //method=\"POST\" action=\"passToPHP.php\" 
+    //make an array to store names
+    userInput = [null,null,null];
 
-      /*  formSubmit = d3.selectAll("#submitForm")    
-            .on("submit", function(){
-                inputName = document.getElementById("popUser1").value;
-                console.log(inputName);
-            });*/
+    var inputName1 = d3.select('#popupUser1').on('input', function(){
+        userInput[0] = this.value;
+    })
 
+    var inputName2 = d3.select('#popupUser2').on('input', function(){
+        userInput[1] = this.value;
+    })
 
-        //make an array to store names
-        userInput = [null,null,null];
+    var inputName3 = d3.select('#popupUser3').on('input', function(){
+        userInput[2] = this.value;
+    })
 
-        var inputName1 = d3.select('#popupUser1').on('input', function(){
-            userInput[0] = this.value;
-        })
+    //tell the popup form what to do when the user hits submit
+    $('#form-popup').submit(function () {
 
-        var inputName2 = d3.select('#popupUser2').on('input', function(){
-            userInput[1] = this.value;
-        })
+        //call the php page to save the data for sketch1b to load
+        $.post('http://ericagunn.com/Twitter/sendToPHP.php', packDataForPHP(userInput), function(data, status){});
+        //call function to hide the popup
+        div_hide();
+        //call function to load sketch1b page
+        multUsers(userInput);
 
-        var inputName3 = d3.select('#popupUser3').on('input', function(){
-            userInput[2] = this.value;
-        })
-        
-        $('#form-popup').submit(function () {
-            console.log(packDataForPHP(userInput));
-            
-            //call the php page to save the data for sketch1b to load
-            $.post('http://ericagunn.com/Twitter/sendToPHP.php', packDataForPHP(userInput), function(data, status){
-        //alert("Data: " + data + "\nStatus: " + status);
-    });
-            //call function to hide the popup
-            div_hide();
-            multUsers(userInput);
-            
-            //prevent screen from refreshing by returning false
-            return false;
-        });
-
-       
-    
+        //prevent screen from refreshing by returning false
+        return false;
+    });    
         
 }
 
+//draw legend for the bubbles display, call function to run minimization and draw circles/satellites
 function drawBubbles(twitterData, currentCanvas){
     
      //legend
@@ -367,14 +267,17 @@ function drawBubbles(twitterData, currentCanvas){
     
 }
 
+//Draw the user timeline
 function drawTimeline(twitterData,currentCanvas){
     
     if(singleUser){
         
         timeline = currentCanvas.append('g').attr('class','timelines');
 
+        //calculate the time interval covered by the last 100 tweets retrieved
         var tweetInterval = twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate;
 
+        //draw 4 lines and label them with the quarter points of the time interval
         for(var i=0; i<4; i++){
 
             timeline.append('line')
@@ -400,14 +303,12 @@ function drawTimeline(twitterData,currentCanvas){
         }
 
         //set up time length scale (domain = input, range = output)
-        //(May want to switch to built in time.scale later?)
         var timeScale1 = d3.scale.linear().domain([0,tweetInterval/4]).range([75,width2-40]);
         var timeScale2 = d3.scale.linear().domain([tweetInterval/4,tweetInterval/2]).range([75,width2-40]);
         var timeScale3 = d3.scale.linear().domain([tweetInterval/2,3*tweetInterval/4]).range([75,width2-40]);
         var timeScale4 = d3.scale.linear().domain([3*tweetInterval/4,tweetInterval]).range([75,width2-40]);
 
-        //console.log(timeScale1(1450433707000));
-
+        //parse the date information for each tweet, select appropriate y axis, and plot it as a circle
         twitterData.forEach(function(d){
 
             var tweetDate = new Date(d.parsedDate);
@@ -418,11 +319,9 @@ function drawTimeline(twitterData,currentCanvas){
 
             caseValue = Math.floor((d.parsedDate - twitterData[0].parsedDate)/(tweetInterval/4));
 
-            //console.log(Math.floor((twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate)/(tweetInterval/4)));
 
             switch(caseValue){
                 case 0: 
-                    //console.log(timeScale1(d.parsedDate-twitterData[0].parsedDate));
                     d.xcoord = timeScale1(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 1;
                 break;
@@ -438,13 +337,11 @@ function drawTimeline(twitterData,currentCanvas){
                 break;
 
                 case 3: 
-                    //console.log(timeScale4(twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate));
                     d.xcoord = timeScale4(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 4;
                 break;
 
                 case 4: 
-                    //console.log(timeScale4(twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate));
                     d.xcoord = timeScale4(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 4;
                 break;
@@ -452,8 +349,7 @@ function drawTimeline(twitterData,currentCanvas){
 
         });
 
-        //console.log(twitterData);
-
+        
         tweetCircGroup = currentCanvas.selectAll('circ')
             .append('g')
             .attr('class','circ-group');
@@ -474,35 +370,7 @@ function drawTimeline(twitterData,currentCanvas){
 
     }                                               
     else {
-            /*for(var i=0; i<4; i++){
-
                 
-            timelinePlot1.append('line')
-                .attr('x1',55)
-                .attr('y1',15+i*25)
-                .attr('x2',width2-30)
-                .attr('y2',15+i*25)
-                .style('stroke','gray')
-                .style('stroke-width',0.2);
-
-            timelinePlot1.append('text')
-                .style('text-anchor','left')
-                .attr('x',5)
-                .attr('y',15+i*25+3)
-                .style('font-size',10)  
-                .style('fill','gray')
-                .text('3/'+ (i +10)+ '/16');
-
-            for (var j = 0; j < 10; j++){
-                timelinePlot1.append('circle')
-                    .attr('cx', Math.random()*(width2-125)+60)
-                    .attr('cy', 15+i*25)
-                    .attr('r',4)
-                    .style('fill','rgba(153, 185, 230,.5')
-            }*/
-                
-        
-        
         timeline = currentCanvas.append('g').attr('class','timelines');
 
         var tweetInterval = twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate;
@@ -532,13 +400,10 @@ function drawTimeline(twitterData,currentCanvas){
         }
 
         //set up time length scale (domain = input, range = output)
-        //(May want to switch to built in time.scale later?)
         var timeScale1 = d3.scale.linear().domain([0,tweetInterval/4]).range([75,width2-40]);
         var timeScale2 = d3.scale.linear().domain([tweetInterval/4,tweetInterval/2]).range([75,width2-40]);
         var timeScale3 = d3.scale.linear().domain([tweetInterval/2,3*tweetInterval/4]).range([75,width2-40]);
         var timeScale4 = d3.scale.linear().domain([3*tweetInterval/4,tweetInterval]).range([75,width2-40]);
-
-        //console.log(timeScale1(1450433707000));
 
         twitterData.forEach(function(d){
 
@@ -550,11 +415,8 @@ function drawTimeline(twitterData,currentCanvas){
 
             caseValue = Math.floor((d.parsedDate - twitterData[0].parsedDate)/(tweetInterval/4));
 
-            //console.log(Math.floor((twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate)/(tweetInterval/4)));
-
             switch(caseValue){
                 case 0: 
-                    //console.log(timeScale1(d.parsedDate-twitterData[0].parsedDate));
                     d.xcoord = timeScale1(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 1;
                 break;
@@ -570,13 +432,11 @@ function drawTimeline(twitterData,currentCanvas){
                 break;
 
                 case 3: 
-                    //console.log(timeScale4(twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate));
                     d.xcoord = timeScale4(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 4;
                 break;
 
                 case 4: 
-                    //console.log(timeScale4(twitterData[twitterData.length-1].parsedDate - twitterData[0].parsedDate));
                     d.xcoord = timeScale4(d.parsedDate-twitterData[0].parsedDate);
                     d.yaxis = 4;
                 break;
@@ -584,12 +444,9 @@ function drawTimeline(twitterData,currentCanvas){
 
         });
 
-        //console.log(twitterData);
-
         tweetCircGroup = currentCanvas.selectAll('circ')
             .append('g')
             .attr('class','circ-group');
-//*******radius different!
         tweetCircGroup    
             .data(twitterData)
             .enter()
@@ -609,7 +466,6 @@ function drawTimeline(twitterData,currentCanvas){
             drawLegend();
         }
         
-       // }
     }
     
 }

@@ -1,6 +1,9 @@
+//draws force layout to the canvas. Central circles are colored according to tweet type,
+//satellite circles represent the number of retweets.
 function bubbles(twitterData, plotHandle){
     
-        var circles = plotHandle.selectAll('.circ')
+    //make empty selection, bind groups to twitterData, give them random positions
+    var circles = plotHandle.selectAll('.circ')
         .data(twitterData)
         .enter()
         .append('g')
@@ -33,17 +36,15 @@ function bubbles(twitterData, plotHandle){
             d.yPos = yPos;
             
             return  'translate('+ xPos + ',' + yPos + ')'; 
-        });
+    });
     
+    //set circle size, read tweet content to determine which color to assign
     circles
         .append('circle')
         .attr('class','circ')
         .attr('cx',0)
         .attr('cy',0)
         .attr('r', function(d){
-            //turn off scaling of radii for now - working on single user timeline
-            //d.r = radiusScale(d.user.followers_count);
-            //return radiusScale(d.user.followers_count)})
             d.r = circleSize;
             return circleSize})
         .style('fill', function(d){
@@ -74,43 +75,37 @@ function bubbles(twitterData, plotHandle){
             }
 
         })
-        .call(force.drag)
-        //tooltip based on http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
-    
+        .call(force.drag) //allow the user to drag circles with the mouse
+        
+        
+    //check whether the function is running in sketch 1 or sketch 1b.
     if (singleUser) {
+        //set mouse behavior - highlight on mouseover, show tooltip on click.
         circles
             .on("mouseover", mouseHighlightTweet)					
             .on("mouseout", noMouseHighlightTweet)
             .on('click', tweetClick);
     }
-
-    //console.log(plotHandle);
     
-    
+    //from: http://stackoverflow.com/questions/13463053/calm-down-initial-tick-of-a-force-layout
+    //run the force layout without drawing (must be done before binding to the data) to reduce 
+    //computation time. 
     var safety = 0;
-    while(force.alpha() > 0.045) { // You'll want to try out different, "small" values for this
+    while(force.alpha() > 0.045) { // threshold alpha data where you want to return to "normal" minimization
         force.tick();
         if(safety++ > 500) {
-          break;// Avoids infinite looping in case this solution was a bad idea
+          break;// Avoids infinite looping 
     }
     }
-    
     
 
-    //Collision detection
-    //array into force layout, updates start to happen, updated accordingly
-    //link nodes var to twitter data array
+    //set up force layout, bind to data, run tick function to update
     force.nodes(twitterData)
         .on('tick',function(e){ tick(e,twitterData,plotHandle);})
         .start();
     
-    
-    
+    //create empty storage array for satellite circles, and set a counter variable
     var satNodes = [];
-    
-    //append a group to the circles selection to hold satellites
-    //var satGroup = circles.append('g').attr('class','sat-group');
-    
     var numSats = null;
 
     //based on http://jsfiddle.net/nrabinowitz/5CfGG/
@@ -124,14 +119,15 @@ function bubbles(twitterData, plotHandle){
             satellites = [];
             dataTree={};
             
+            //create a satellite circle for each retweet
             for (var i = 0; i<d.retweet_count; i++){
-                //console.log(d.retweet_count);
                 numSats = d.retweet_count;
                 
                 satellite = {parentX:d.x, parentY:d.y, retweets:d.retweet_count, parentR:d.r}
                 satellites.push(satellite);
             }
-        
+            
+            //make a tree layout to hold the satellites
             if(satellites.length > 0){ 
             
                 var dataTree = {
@@ -149,7 +145,6 @@ function bubbles(twitterData, plotHandle){
                 
             //object with the children array inside it. Children array is an array of child objects, 
             //each with a size attribute.
-            //console.log(dataTree);
                              
             }
          
@@ -161,13 +156,7 @@ function bubbles(twitterData, plotHandle){
                 tree = d3.layout.tree()
                     //x controls length (360 for radial degrees. y controls radial distance. 
                     //Node size is set when circles are drawn, below.
-                    .size([360*4,circleSize]); //why won't this work with an anonymous function? returns NaN...
-                    //.separation(function(a,b) {
-                        //set ideal separation between satellites (doesn't do much, but have to have it,
-                        //or node x,y position calculation returns NaN)
-                    //    return 2;//radiusScale(a.size) + radiusScale(b.size);
-                    //});
-                
+                    .size([360*4,circleSize]); 
                 
                 //apply the layout to the data
                 satNodes = tree.nodes(dataTree);
@@ -184,9 +173,9 @@ function bubbles(twitterData, plotHandle){
                       .attr("class", "node")
                       .attr("transform", function(d,i) {                    
                           //draw the satellite nodes around the center and translate to the 
-                          //appropriate radial distance.
-                          //console.log(numSats);
-                          
+                          //appropriate radial distance. (Empirically determined, uses thresholds
+                          //to deal with unexpectedly large numbers)
+                                                    
                           if (numSats<200){
                               return "rotate(" + (d.x) + ") translate(" + ((circleSize +circleSize/4) + (i*.05)) + ")";
                           }
@@ -206,7 +195,7 @@ function bubbles(twitterData, plotHandle){
 
                       });
                       
-
+                //actually append the satellite nodes
                 nodes.append("circle")
                     .attr("r", circleSize/12)
                     .style("fill",'rgba(95, 95, 95, .7)'); 
@@ -214,8 +203,6 @@ function bubbles(twitterData, plotHandle){
 
                 
                 
-    }) //close .each  
-    
-    
+    }) 
     
 }

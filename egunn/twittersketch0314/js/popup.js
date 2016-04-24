@@ -1,34 +1,8 @@
 //from http://www.formget.com/how-to-create-pop-up-contact-form-using-javascript/
 
-/*
-// Validating Empty Field
-function check_empty() {
-    if (document.getElementById('popupUser1').value == "" || document.getElementById('popupUser2').value == "" ||       
-        document.getElementById('popupUser3').value == "") {
-        
-        alert("Please enter 3 users to compare");
-    } 
-    else {
-    document.getElementById('form').submit();
-        console.log('here');
-        var temp = document.getElementById('popupUser1').value;
-        console.log(temp);
-        
-    }
-}*/
-
-//Function To Display Popup
-function div_show() {
-    //supposed to put popup on top. Doesn't seem to do anything....
-    //document.getElementById('popupWindowDiv').focus();
-}
-
-//Function to Hide Popup
+//Function to Hide Popup for multiple user entry
 function div_hide(){
-    //console.log('div_hide')
-    //inputName1 = document.getElementById("#popUser1").value;
-    //test = 52;
-    //console.log(test);
+
     document.getElementById('popupWindowDiv').style.display = "none";
     
     //reset entry fields as blank
@@ -39,14 +13,8 @@ function div_hide(){
     return false;
 }
 
-//load popup for multiUser input
-function popupPressed(){
-    
-    //window.location = "../popupform.html";
-    
-}
-
-
+//take the data from the popup form, package it, and send it to the server to pass
+//to sketch1b.
 //from https://www.boutell.com/newfaq/creating/scriptpass.html
 function packDataForPHP(userInput)
 {
@@ -62,6 +30,5 @@ function packDataForPHP(userInput)
   }
     
   return 'data=' + packed;
-  //document.data.data.value = packed;
-  //document.data.submit();
+
 }

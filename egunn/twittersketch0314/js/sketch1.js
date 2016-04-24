@@ -1,19 +1,6 @@
-//Next steps:
-//Click on a tweet to view activity over time. (Check to see if possible, without locating retweets //themselves).
-//Expand to follow multiple levels of retweeting
-
-//see week 11 Ex 2 script complete for multifocus custom gravity example
-
+//runs on page load for sketch1 - main page, showing data for a single user
 
 //div is in html, when page loads, get window height and width, and adjust div height and width according to that using JS.
-
-//config.js - set margins, selections, etc. (load 1st, sets up everything)
-//feature.js - 
-//don't need to reload data for each script, will stomp on one another if var names are = .
-//global vars add themselves to window dataspace.
-
-//figure out why the plot div height has to be set to a hard (rather than percentage) value //in the CSS
-//why can't mouse leave canvas during force minimization?
 
 //set some margins and record width and height of window
 var margin = {t:25,r:40,b:25,l:40};
@@ -27,15 +14,9 @@ var width1 = document.getElementById('plot1').clientWidth - margin.r - margin.l,
 var width2 = document.getElementById('plot2').clientWidth - margin.r - margin.l,  
     height2 = document.getElementById('plot2').clientHeight - margin.t - margin.b;
 
-//for now, not linked to actual data - later, set max according to numbers stored in data object. 
-var radiusScale = d3.scale.sqrt().domain([0,20000]).range([10,50]);
-
 var multiGravityOn = false;
 var circleSize = 8;
 var singleUser = true;
-//var twitterData = null;
-
-
 
 //select the HTML plot element by class
 var userCanvas = d3.select(".user");
@@ -97,12 +78,8 @@ plot2 = canvas2.append('svg')
     .attr('class','canvas2')
     .attr('transform','translate('+margin.l+','+margin.t+')');
 
-//load twitter data, then call draw function.
-//d3.json("./twitter_data2.json", function(error, data) {
+//load pre-stored data to start 
 d3.json("./AmandaPalmer_0320_100timeline.json", function(error, data) {
-    
-    //check that you can access data (this gives follower count for a specific user)
-    //console.log(data.statuses[0].user.followers_count); 
     
     //load this link to call data live from Twitter
     //http://ericagunn.com/Twitter/TwitterDataAppAnyUser.php?screen_name=engunneer&count=100
@@ -110,14 +87,7 @@ d3.json("./AmandaPalmer_0320_100timeline.json", function(error, data) {
     parse(data);
 })
 
-/*
-//Test code to load JSON data directly from PHP/TwitterAPI. Works, but queries 1x/refresh.
-//Replace with static data file for now.
-d3.json("http://ericagunn.com/Twitter/TwitterDataApp.php",function(error,webTwitter){
-  console.log(webTwitter)  
-})
-*/
-
+//sort tweets by date
 function parse(data){
     
     var parsedTweets = [];
@@ -128,53 +98,17 @@ function parse(data){
         var dateParse = Date.parse(d.created_at); 
         d.parsedDate = dateParse;
         parsedTweets.push(d);
-        
     })
     
-
     var sortedTweets = parsedTweets.sort(function(tweetA,tweetB){
         //sorts in date order
         return tweetA.parsedDate - tweetB.parsedDate;
     })
 
     drawWindow(sortedTweets);
-    //drawUsers(sortedTweets);
     
 }
-/*
-function drawUsers(data) {
-    
-    twitterData=data;
-    
-    console.log(data);
 
-    if (singleUser){
-
-        drawUserCanvas(twitterData);
-
-        drawSidebarCanvas();
-
-        drawBubbles();
-
-        drawTimeline();
-    }
-    
-    else {
-
-        drawUserCanvas(twitterData);
-
-        drawSidebarCanvas();
-
-        drawBubbles();
-
-        drawTimeline();
-    }
-    
-
-    
-    
-    
-}*/
 
 //load sketch page
 function multUsers(userInput){
@@ -182,7 +116,7 @@ function multUsers(userInput){
 }
 
 
-
+//Change gravity functions and animate legend items when Separate Categories button is pushed
 function mouseClickCategories(twitterData) {
     if (multiGravityOn == true){
         multiGravityOn = false;
@@ -204,7 +138,6 @@ function mouseClickCategories(twitterData) {
             .attr('x',-5)
             .attr('y',33);
         
-                
         plot1.select('.legendLabel-new')
             .transition(100)
             .style('font-size',10)
@@ -261,17 +194,9 @@ function mouseClickCategories(twitterData) {
         plot1.select('.legendLabel-satellite')
             .transition(100)
             .style('fill','none');
-        
-        
+    
     }
-    
-    
-    
-    //console.log(multiGravity);
-    
-    force.nodes(twitterData)
-        .on('tick',function(e){tick(e,twitterData)})
-        .start();
+
 
 }
 
